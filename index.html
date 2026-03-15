@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!--
+    If you are serving your web app in a path other than the root, change the
+    href value below to reflect the base path you are serving from.
+
+    The path provided below has to start and end with a slash "/" in order for
+    it to work correctly.
+
+    For more details:
+    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+
+    This is a placeholder for base href that will be replaced by the value of
+    the `--base-href` argument provided to `flutter build`.
+  -->
+  <base href="/">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="Tech4All AI Tools Platform - Your intelligent companion for everyday tasks.">
+
+  <!-- Open Graph / Social Media Meta Tags -->
+  <meta property="og:title" content="Tech4All AI">
+  <meta property="og:description" content="Tech4All AI Tools Platform - Your intelligent companion for everyday tasks.">
+  <meta property="og:image" content="https://tech4all-ai.techhubafrica.org/icons/Icon-512.png">
+  <meta property="og:url" content="https://tech4all-ai.techhubafrica.org/">
+  <meta property="og:type" content="website">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Tech4All">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png" />
+
+  <title>Tech4All</title>
+  <link rel="manifest" href="manifest.json">
+</head>
+
+<body>
+  <script>
+    // Force cache busting dynamically for new fetches
+    var serviceWorkerVersion = new Date().getTime().toString();
+    window.flutterConfiguration = {
+      canvasKitBaseUrl: "https://unpkg.com/canvaskit-wasm@0.39.1/bin/",
+    };
+
+    // Register the Network-Proxy Service Worker to permanently block caching
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('flutter_service_worker.js?v=' + serviceWorkerVersion).then((registration) => {
+          console.log('Proxy SW registered actively.');
+        });
+      });
+    }
+  </script>
+  <script>
+    // Append a cache-buster query string to flutter_bootstrap.js
+    var script = document.createElement('script');
+    script.src = "flutter_bootstrap.js?v=" + new Date().getTime();
+    script.async = true;
+    document.body.appendChild(script);
+  </script>
+</body>
+
+</html>
