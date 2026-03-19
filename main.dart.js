@@ -91016,8 +91016,8 @@ k=$.aK1()
 s=7
 return A.v(k.m_(new A.Nj(new A.Mr(null,null,null,!0),null)),$async$yK)
 case 7:m=b
-if(J.ie(m)){if(J.bQ(m)<5){k=n.c
-if(k!=null)k.ae(t.J).f.hs(B.Rs)
+if(J.ie(m)){if(J.bQ(m)<2){k=n.c
+if(k!=null)k.ae(t.J).f.hs(B.Rv)
 s=1
 break}n.a9(new A.aqx(n,m))}p=2
 s=6
@@ -91078,7 +91078,7 @@ return A.v(m.d.Cx(k),$async$q5)
 case 12:j=b
 if(j!=null&&m.c!=null){m.a9(new A.aqH(m,j))
 m.c.ae(t.J).f.hs(B.Rw)}else{h=m.c
-if(h!=null)h.ae(t.J).f.hs(B.Rv)}s=10
+if(h!=null)h.ae(t.J).f.hs(B.Ru)}s=10
 break
 case 11:h=m.c
 if(h!=null)h.ae(t.J).f.hs(B.Rz)
@@ -91105,7 +91105,7 @@ case 2:return A.y(o.at(-1),r)}})
 return A.A($async$q5,r)},
 y0(){var s=0,r=A.B(t.H),q,p=this,o,n,m
 var $async$y0=A.w(function(a,b){if(a===1)return A.y(b,r)
-while(true)switch(s){case 0:if(p.y==null){p.c.ae(t.J).f.hs(B.Rt)
+while(true)switch(s){case 0:if(p.y==null){p.c.ae(t.J).f.hs(B.Rs)
 s=1
 break}p.a9(new A.aqu(p))
 o=A.bg(J.an(B.b.AZ(p.ay,new A.aqv(p)),"prompt"))
@@ -91116,7 +91116,7 @@ return A.v(p.d.rR(n,"A high-end professional corporate headshot, "+o+", 8k resol
 case 3:m=b
 if(p.c!=null){p.a9(new A.aqw(p))
 if(m!=null)p.aiv(m)
-else p.c.ae(t.J).f.hs(B.Ru)}case 1:return A.z(q,r)}})
+else p.c.ae(t.J).f.hs(B.Rt)}case 1:return A.z(q,r)}})
 return A.A($async$y0,r)},
 K(a){var s,r,q,p,o,n,m,l=this,k=null,j=A.y_(B.D,!0,0,A.aE("AI Headshots",k,k,k,A.aI().$1$fontWeight(B.z),k,k))
 if(l.w){s=l.c
@@ -91131,7 +91131,7 @@ m=A.d7(A.aD(B.d.az(76.5),B.w.C()>>>16&255,B.w.C()>>>8&255,B.w.C()&255),B.p,1)
 s=A.bs(k,A.bW(A.b([B.Rf,B.iy,r,B.bd,new A.bO(B.nS,q,k),B.iy,A.aNn(A.bs(k,A.aE(l.as[l.Q],k,k,k,A.aI().$2$color$fontWeight(B.w,B.dM),k,k),B.m,k,k,new A.bh(o,k,m,n,k,k,B.H),k,k,new A.dw(p,t.f3),k,B.Gp,k,k,k),B.dD,A.aXx(),A.aXy())],t.p),B.x,B.hO,B.v),B.m,k,k,k,k,s.a.b*0.7,k,k,k,k,k,1/0)}else s=!l.x?l.a6r():l.a6s()
 return A.lX(j,B.b_,A.kt(!0,A.bW(A.b([A.f2(A.PF(s,B.aC),1)],t.p),B.x,B.u,B.v),B.ae,!0),k)},
 a6r(){var s,r=this,q=null,p=r.NE("1","Upload Your Selfies"),o=A.by(16),n=A.d7(B.w,B.p,2)
-if(J.fx(r.r))s=A.bW(A.b([B.HG,B.bd,A.aE("Tap to Select 10-15 photos",q,q,q,A.aI().$2$color$fontWeight(B.i,B.z),q,q),B.eb,A.aE("We will use these to train a bespoke AI model of your face for flawless 100% realism.",q,q,q,A.aI().$3$color$fontSize$height(B.Y,12,1.5),B.de,q)],t.p),B.x,B.u,B.v)
+if(J.fx(r.r))s=A.bW(A.b([B.HG,B.bd,A.aE("Tap to Select 2-10 photos",q,q,q,A.aI().$2$color$fontWeight(B.i,B.z),q,q),B.eb,A.aE("We will use these to train a bespoke AI model of your face for flawless 100% realism.",q,q,q,A.aI().$3$color$fontSize$height(B.Y,12,1.5),B.de,q)],t.p),B.x,B.u,B.v)
 else{s=J.bQ(r.r)>9?9:J.bQ(r.r)
 s=A.b([A.aEt(B.Ri,new A.aqq(r),s,B.vn,!0)],t.p)
 if(J.bQ(r.r)>9)s.push(new A.bO(B.Ge,A.aE("+ "+(J.bQ(r.r)-9)+" more",q,q,q,B.Uq,q,q),q))
@@ -91176,8 +91176,8 @@ $0(){var s=this.a,r=s.Q
 if(r<9)s.Q=r+1},
 $S:0}
 A.aqz.prototype={
-$1(a){var s=null,r=A.aE("Create Your AI Clone",s,s,s,A.aI().$3$color$fontSize$fontWeight(B.i,20,B.z),s,s),q=A.aE("To train a bespoke AI model that looks exactly like you, we need 10-15 high-quality photos.",s,s,s,A.aI().$2$color$fontSize(B.R,14),s,s),p=this.a,o=p.xG(B.oG,"Look directly at the camera (Front-facing angle)."),n=p.xG(B.Hd,"Ensure your face is evenly lit with no harsh shadows."),m=p.xG(B.Hn,"Remove glasses, hats, or hair covering your face."),l=p.xG(B.Hc,"Use photos with different outfits and backgrounds."),k=A.tU(s,s,B.w,s,s,s,s,s,s,s,s,s,B.cU,s,new A.c8(A.by(12),B.o),s,s,s,s,s)
-return new A.bO(B.eL,A.bW(A.b([r,B.bd,q,B.bd,o,n,m,l,B.bL,A.dG(A.zr(!1,A.aE("Upload Top 15 Photos",s,s,s,A.aI().$3$color$fontSize$fontWeight(B.i,16,B.z),s,s),s,s,s,s,s,s,new A.aqy(p,a),s,k),s,1/0)],t.p),B.ab,B.u,B.cg),s)},
+$1(a){var s=null,r=A.aE("Create Your AI Clone",s,s,s,A.aI().$3$color$fontSize$fontWeight(B.i,20,B.z),s,s),q=A.aE("To train a bespoke AI model that looks exactly like you, we need 2-10 high-quality photos.",s,s,s,A.aI().$2$color$fontSize(B.R,14),s,s),p=this.a,o=p.xG(B.oG,"Look directly at the camera (Front-facing angle)."),n=p.xG(B.Hd,"Ensure your face is evenly lit with no harsh shadows."),m=p.xG(B.Hn,"Remove glasses, hats, or hair covering your face."),l=p.xG(B.Hc,"Use photos with different outfits and backgrounds."),k=A.tU(s,s,B.w,s,s,s,s,s,s,s,s,s,B.cU,s,new A.c8(A.by(12),B.o),s,s,s,s,s)
+return new A.bO(B.eL,A.bW(A.b([r,B.bd,q,B.bd,o,n,m,l,B.bL,A.dG(A.zr(!1,A.aE("Upload Top 10 Photos",s,s,s,A.aI().$3$color$fontSize$fontWeight(B.i,16,B.z),s,s),s,s,s,s,s,s,new A.aqy(p,a),s,k),s,1/0)],t.p),B.ab,B.u,B.cg),s)},
 $S:573}
 A.aqy.prototype={
 $0(){A.eN(this.b,!1).wm(null)
@@ -91226,7 +91226,7 @@ $0(){this.a.at=this.b.h(0,"title")},
 $S:0}
 A.aqC.prototype={
 $1(a){var s=null,r=this.b,q=t.p
-return new A.tM(B.Z,new A.c8(A.by(16),B.o),new A.bO(B.aC,A.bW(A.b([A.aE("Your Headshot",s,s,s,A.aI().$3$color$fontSize$fontWeight(B.i,18,B.z),s,s),B.bd,A.a2J(A.by(12),A.aEA(r,B.mH)),B.bd,A.cF(A.b([A.f2(A.aFu(B.WI,new A.aqA(a),A.aFv(s,s,s,s,s,s,s,s,s,s,s,s,s,s,new A.c8(A.by(12),B.o),B.fI,s,s,s,s)),1),B.aM,A.f2(A.aPn(B.HA,B.WM,new A.aqB(this.a,r,a),A.tU(s,s,B.w,s,s,s,s,s,s,s,s,s,s,s,new A.c8(A.by(12),B.o),s,s,s,s,s)),1)],q),B.x,B.u,B.v,0)],q),B.x,B.u,B.cg),s),s)},
+return new A.tM(B.Z,new A.c8(A.by(16),B.o),new A.bO(B.aC,A.bW(A.b([A.aE("Your Headshot",s,s,s,A.aI().$3$color$fontSize$fontWeight(B.i,18,B.z),s,s),B.bd,A.a2J(A.by(12),A.aEA(r,B.mH)),B.bd,A.cF(A.b([A.f2(A.aFu(B.WJ,new A.aqA(a),A.aFv(s,s,s,s,s,s,s,s,s,s,s,s,s,s,new A.c8(A.by(12),B.o),B.fI,s,s,s,s)),1),B.aM,A.f2(A.aPn(B.HA,B.WM,new A.aqB(this.a,r,a),A.tU(s,s,B.w,s,s,s,s,s,s,s,s,s,s,s,new A.c8(A.by(12),B.o),s,s,s,s,s)),1)],q),B.x,B.u,B.v,0)],q),B.x,B.u,B.cg),s),s)},
 $S:577}
 A.aqA.prototype={
 $0(){A.eN(this.a,!1).wm(null)
@@ -97791,20 +97791,20 @@ B.Rq=new A.ky(3,"hide")
 B.a_8=new A.ky(4,"remove")
 B.A6=new A.ky(5,"timeout")
 B.Rr=new A.vr(null,null,null,null,null,null,null,null,null,null,null,null,null,null)
-B.WK=new A.fp("Please select at least 5 photos for good results (10-15 recommended).",null,null,null,null,null,null,null,null)
-B.Rs=new A.fP(B.WK,null,null,null,null,null,null,null,null,null,null,null,null,B.bl,null,null,null,B.G,null)
 B.WN=new A.fp("Please train your AI model first.",null,null,null,null,null,null,null,null)
-B.Rt=new A.fP(B.WN,null,null,null,null,null,null,null,null,null,null,null,null,B.bl,null,null,null,B.G,null)
+B.Rs=new A.fP(B.WN,null,null,null,null,null,null,null,null,null,null,null,null,B.bl,null,null,null,B.G,null)
 B.WG=new A.fp("AI Generation failed. Please try again.",null,null,null,null,null,null,null,null)
-B.Ru=new A.fP(B.WG,null,null,null,null,null,null,null,null,null,null,null,null,B.bl,null,null,null,B.G,null)
-B.WH=new A.fp("Training failed. Please try again.",null,null,null,null,null,null,null,null)
+B.Rt=new A.fP(B.WG,null,null,null,null,null,null,null,null,null,null,null,null,B.bl,null,null,null,B.G,null)
+B.WI=new A.fp("Training failed. Please try again.",null,null,null,null,null,null,null,null)
+B.Ru=new A.fP(B.WI,null,null,null,null,null,null,null,null,null,null,null,null,B.bl,null,null,null,B.G,null)
+B.WH=new A.fp("Please select at least 2 photos for good results (2-10 recommended).",null,null,null,null,null,null,null,null)
 B.Rv=new A.fP(B.WH,null,null,null,null,null,null,null,null,null,null,null,null,B.bl,null,null,null,B.G,null)
 B.WL=new A.fp("AI Successfully Trained! You can now generate headshots.",null,null,null,null,null,null,null,null)
 B.Rw=new A.fP(B.WL,null,null,null,null,null,null,null,null,null,null,null,null,B.bl,null,null,null,B.G,null)
 B.WD=new A.fp("Failed to generate image. Please try again.",null,null,null,null,null,null,null,null)
 B.Rx=new A.fP(B.WD,null,null,null,null,null,null,null,null,null,null,null,null,B.bl,null,null,null,B.G,null)
-B.WJ=new A.fp("File upload not implemented yet. Paste text below.",null,null,null,null,null,null,null,null)
-B.Ry=new A.fP(B.WJ,null,null,null,null,null,null,null,null,null,null,null,null,B.bl,null,null,null,B.G,null)
+B.WK=new A.fp("File upload not implemented yet. Paste text below.",null,null,null,null,null,null,null,null)
+B.Ry=new A.fP(B.WK,null,null,null,null,null,null,null,null,null,null,null,null,B.bl,null,null,null,B.G,null)
 B.WE=new A.fp("Failed to upload dataset securely.",null,null,null,null,null,null,null,null)
 B.Rz=new A.fP(B.WE,null,null,null,null,null,null,null,null,null,null,null,null,B.bl,null,null,null,B.G,null)
 B.WF=new A.fp("Download started!",null,null,null,null,null,null,null,null)
@@ -98174,7 +98174,7 @@ B.VG=new A.p(!0,B.l,null,".AppleSystemUIFont",null,null,null,null,null,null,null
 B.SL=new A.p(!0,B.l,null,".AppleSystemUIFont",null,null,null,null,null,null,null,null,null,null,null,null,null,B.h,null,null,null,"blackRedwoodCity labelSmall",null,null,null,null)
 B.WC=new A.ej(B.Uu,B.Tx,B.Uv,B.UZ,B.Ta,B.Th,B.TP,B.UP,B.U0,B.Vr,B.SD,B.ST,B.Vl,B.VG,B.SL)
 B.At=new A.p(!0,B.i,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)
-B.WI=new A.fp("Close",null,B.At,null,null,null,null,null,null)
+B.WJ=new A.fp("Close",null,B.At,null,null,null,null,null,null)
 B.WM=new A.fp("Save",null,B.At,null,null,null,null,null,null)
 B.WO=new A.QR(0,"system")
 B.Av=new A.QR(2,"dark")

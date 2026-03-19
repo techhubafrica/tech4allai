@@ -32,7 +32,7 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
         fetch(event.request, { cache: 'reload' }).catch((error) => {
             console.error('[Proxy SW] Normal network fetch failed, trying with cache-busting URL parameter', error);
-
+            
             // If the strict 'reload' header fails (some old mobile Chrome versions),
             // physically mutate the URL string with a cache-busting timestamp
             try {
