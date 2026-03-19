@@ -91048,7 +91048,7 @@ var $async$u4=A.w(function(a,b){if(a===1){o.push(b)
 s=p}while(true)switch(s){case 0:p=4
 i=$.aK1()
 s=7
-return A.v(i.m_(new A.Nj(new A.Mr(1024,1024,80,!0),null)),$async$u4)
+return A.v(i.m_(new A.Nj(new A.Mr(2048,2048,100,!0),null)),$async$u4)
 case 7:m=b
 s=J.ie(m)?8:9
 break
