@@ -90052,15 +90052,15 @@ A.Ld.prototype={
 wz(a,b){return this.ZH(a,b)},
 ZH(a,b){var s=0,r=A.B(t.T),q,p=2,o=[],n,m,l,k,j,i,h,g,f
 var $async$wz=A.x(function(c,d){if(c===1){o.push(d)
-s=p}while(true)switch(s){case 0:g=A.d8("https://fal.run/fal-ai/flux-pulid",0,null)
+s=p}while(true)switch(s){case 0:g=A.d8("https://fal.run/fal-ai/instant-id",0,null)
 p=4
-A.e4("Sending PuLID Request to Fal.ai: "+A.k(g))
+A.e4("Sending InstantID Request to Fal.ai: "+A.k(g))
 A.e4("Using Reference Image URL: "+b)
 A.e4("Prompt: "+a)
 j=t.N
 i=A.a0(["Content-Type","application/json","Authorization",u.g],j,j)
 s=7
-return A.w(A.Ik(g,B.a7.v0(A.a0(["prompt",a,"reference_image_url",b,"image_size","portrait_4_3"],j,j),null),null,i),$async$wz)
+return A.w(A.Ik(g,B.a7.v0(A.a0(["prompt",a,"image_url",b,"image_size","portrait_4_3"],j,j),null),null,i),$async$wz)
 case 7:n=d
 A.e4("Fal.ai Inference Response Status: "+n.b)
 if(n.b===200){j=n
