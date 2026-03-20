@@ -89595,7 +89595,7 @@ s=1
 break}p.ad(new A.aq1(p))
 o=A.bg(J.am(B.b.AI(p.as,new A.aq2(p)),"prompt"))
 n=B.c.hh(p.z.a.a)
-m=n.length!==0?n+u.M:"A high-end professional corporate headshot, "+o+u.M
+m=n.length!==0?"Transform this photo into "+n+u.M:"Transform this photo into a high-end professional corporate headshot, "+o+u.M
 l=p.x
 l.toString
 s=3
@@ -89612,7 +89612,7 @@ q=A.d5(B.y,B.p,2)
 if(n.w)p=A.bU(A.b([B.QW,B.bd,A.aH("Uploading secure reference...",m,m,m,A.aI().$2$color$fontWeight(B.i,B.z),m,m)],t.p),B.w,B.r,B.v)
 else{p=n.r
 o=t.p
-p=p==null?A.bU(A.b([B.Hn,B.bd,A.aH("Tap to Select 1 Photo",m,m,m,A.aI().$2$color$fontWeight(B.i,B.z),m,m),B.dc,A.aH("We will use this photo as an instant facial reference to inject your DNA into the AI scene.",m,m,m,A.aI().$3$color$fontSize$height(B.Z,12,1.5),B.e8,m)],o),B.w,B.r,B.v):A.bU(A.b([A.a2q(A.by(8),new A.u2(A.aFm(m,m,new A.nq(p,1)),120,120,B.mx,m)),B.bd,A.aH("Upload Failed.",m,m,m,A.aI().$2$color$fontWeight(B.hJ,B.z),m,m),B.dc,A.aH("Tap to try again.",m,m,m,A.aI().$2$color$fontSize(B.Z,12),m,m)],o),B.w,B.r,B.v)}r=A.bU(A.b([s,B.lo,A.fE(m,A.bs(m,p,B.m,m,m,new A.bh(B.X,m,q,r,m,m,B.F),m,m,m,B.eI,m,m,1/0),B.a_,!1,m,m,m,m,m,m,m,m,m,m,m,m,m,n.gahx(),m,m,m,m,m,m),B.fo],t.p),B.ab,B.r,B.v)
+p=p==null?A.bU(A.b([B.Hn,B.bd,A.aH("Tap to Select 1 Photo",m,m,m,A.aI().$2$color$fontWeight(B.i,B.z),m,m),B.dc,A.aH("We will process and transform this exact image into your requested scene using FLUX Kontext.",m,m,m,A.aI().$3$color$fontSize$height(B.Z,12,1.5),B.e8,m)],o),B.w,B.r,B.v):A.bU(A.b([A.a2q(A.by(8),new A.u2(A.aFm(m,m,new A.nq(p,1)),120,120,B.mx,m)),B.bd,A.aH("Upload Failed.",m,m,m,A.aI().$2$color$fontWeight(B.hJ,B.z),m,m),B.dc,A.aH("Tap to try again.",m,m,m,A.aI().$2$color$fontSize(B.Z,12),m,m)],o),B.w,B.r,B.v)}r=A.bU(A.b([s,B.lo,A.fE(m,A.bs(m,p,B.m,m,m,new A.bh(B.X,m,q,r,m,m,B.F),m,m,m,B.eI,m,m,1/0),B.a_,!1,m,m,m,m,m,m,m,m,m,m,m,m,m,n.gahx(),m,m,m,m,m,m),B.fo],t.p),B.ab,B.r,B.v)
 s=r}else s=n.a5N()
 return A.lS(l,B.b_,A.ko(!0,A.bU(A.b([A.f0(A.Po(s,B.aB),1)],t.p),B.w,B.r,B.v),B.ae,!0),m)},
 a5N(){var s,r,q,p,o=this,n=null,m=A.aE(B.d.az(25.5),B.dN.C()>>>16&255,B.dN.C()>>>8&255,B.dN.C()&255),l=A.by(12),k=A.d5(B.dN,B.p,1),j=t.p
@@ -89640,7 +89640,7 @@ s.fk(A.aNT(p,p,q,!0,p,new A.aqb(this,a),o,!1,p,p,r,B.Ap,!0,t.z))},
 Nc(a,b){var s=null
 return A.cE(A.b([A.bs(s,A.en(A.aH(a,s,s,s,A.aI().$2$color$fontWeight(B.i,B.z),s,s),s,s),B.m,s,s,B.Bw,s,28,s,s,s,s,28),B.aL,A.aH(b,s,s,s,A.aI().$3$color$fontSize$fontWeight(B.i,18,B.z),s,s)],t.p),B.w,B.r,B.v,0)}}
 A.aq8.prototype={
-$1(a){var s=null,r=A.aH("Upload 1 Reference Selfie",s,s,s,A.aI().$3$color$fontSize$fontWeight(B.i,20,B.z),s,s),q=A.aH("To instantly replace the face in your prompt without training, we need just 1 high-quality photo.",s,s,s,A.aI().$2$color$fontSize(B.Q,14),s,s),p=this.a,o=p.DK(B.ow,"Look directly at the camera (Front-facing angle)."),n=p.DK(B.GV,"Ensure your face is evenly lit with no harsh shadows."),m=p.DK(B.H4,"Remove glasses, hats, or hair covering your face."),l=A.zh(s,s,B.y,s,s,s,s,s,s,s,s,s,B.dz,s,new A.cd(A.by(12),B.o),s,s,s,s,s)
+$1(a){var s=null,r=A.aH("Upload Photo to Transform",s,s,s,A.aI().$3$color$fontSize$fontWeight(B.i,20,B.z),s,s),q=A.aH("Upload any clear photo. The AI will directly transform it into a stunningly realistic 8k portrait based on your instructions.",s,s,s,A.aI().$2$color$fontSize(B.Q,14),s,s),p=this.a,o=p.DK(B.ow,"Look directly at the camera (Front-facing angle)."),n=p.DK(B.GV,"Ensure your face is evenly lit with no harsh shadows."),m=p.DK(B.H4,"Remove glasses, hats, or hair covering your face."),l=A.zh(s,s,B.y,s,s,s,s,s,s,s,s,s,B.dz,s,new A.cd(A.by(12),B.o),s,s,s,s,s)
 return new A.bR(B.eI,A.bU(A.b([r,B.bd,q,B.bd,o,n,m,B.by,A.dQ(A.L0(!1,A.aH("Upload Reference Photo",s,s,s,A.aI().$3$color$fontSize$fontWeight(B.i,16,B.z),s,s),s,s,s,s,s,s,new A.aq7(p,a),s,l),s,1/0)],t.p),B.ab,B.r,B.cd),s)},
 $S:568}
 A.aq7.prototype={
@@ -90052,15 +90052,15 @@ A.Ld.prototype={
 wz(a,b){return this.ZH(a,b)},
 ZH(a,b){var s=0,r=A.B(t.T),q,p=2,o=[],n,m,l,k,j,i,h,g,f
 var $async$wz=A.x(function(c,d){if(c===1){o.push(d)
-s=p}while(true)switch(s){case 0:g=A.d8("https://fal.run/fal-ai/instantid/standard",0,null)
+s=p}while(true)switch(s){case 0:g=A.d8("https://fal.run/fal-ai/flux-pro/kontext",0,null)
 p=4
-A.e4("Sending InstantID Request to Fal.ai: "+A.k(g))
+A.e4("Sending FLUX Kontext Request to Fal.ai: "+A.k(g))
 A.e4("Using Reference Image URL: "+b)
 A.e4("Prompt: "+a)
 j=t.N
 i=A.a0(["Content-Type","application/json","Authorization",u.g],j,j)
 s=7
-return A.w(A.Ik(g,B.a7.v0(A.a0(["prompt",a,"negative_prompt","(deformed iris, deformed pupils, semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime, mutated hands and fingers:1.4), (deformed, distorted, disfigured:1.3), poorly drawn, bad anatomy, wrong anatomy, extra limb, missing limb, floating limbs, disconnected limbs, mutation, mutated, ugly, disgusting, blur, out of focus, overexposed","guidance_scale",5,"face_image_url",b,"image_size","portrait_4_3"],j,t.K),null),null,i),$async$wz)
+return A.w(A.Ik(g,B.a7.v0(A.a0(["prompt",a,"negative_prompt","(deformed iris, deformed pupils, semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime, mutated hands and fingers:1.4), (deformed, distorted, disfigured:1.3), poorly drawn, bad anatomy, wrong anatomy, extra limb, missing limb, floating limbs, disconnected limbs, mutation, mutated, ugly, disgusting, blur, out of focus, overexposed","guidance_scale",5,"image_url",b,"image_size","portrait_4_3"],j,t.K),null),null,i),$async$wz)
 case 7:n=d
 A.e4("Fal.ai Inference Response Status: "+n.b)
 if(n.b===200){j=n
