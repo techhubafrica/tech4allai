@@ -89593,22 +89593,22 @@ break
 case 5:return A.z(null,r)
 case 1:return A.y(p.at(-1),r)}})
 return A.A($async$pM,r)},
-xP(){var s=0,r=A.B(t.H),q,p=this,o,n,m,l,k
+xP(){var s=0,r=A.B(t.H),q,p=this,o,n,m,l,k,j
 var $async$xP=A.x(function(a,b){if(a===1)return A.y(b,r)
 while(true)switch(s){case 0:if(p.x==null){p.c.ah(t.J).f.iv(B.Ra)
 s=1
 break}p.a9(new A.aq5(p))
 o=A.bh(J.am(B.b.AI(p.at,new A.aq6(p)),"prompt"))
 n=B.c.hh(p.Q.a.a)
-m="Transform this photo of "+(p.z==="Male"?"a male person, man":"a female person, woman")
-l=n.length!==0?m+" into "+n+u.M:m+" into a high-end professional corporate headshot, "+o+u.M
-m=p.x
-m.toString
+m=p.z==="Male"?"a male person, man":"a female person, woman"
+l=n.length!==0?"INSTRUCTION: PIXEL PRIORITY MODE. IDENTITY LOCK: ABSOLUTE. Use ONLY the visual data from the reference image for facial feature construction. Maintain the exact same eyes, nose shape, jawline contour, and skin texture. Generate this exact person into:  "+n+" of "+m+u.M:"INSTRUCTION: PIXEL PRIORITY MODE. IDENTITY LOCK: ABSOLUTE. Use ONLY the visual data from the reference image for facial feature construction. Maintain the exact same eyes, nose shape, jawline contour, and skin texture. Generate this exact person into:  a high-end professional corporate headshot of "+m+", "+o+u.M
+k=p.x
+k.toString
 s=3
-return A.w(p.d.wz(l,m),$async$xP)
-case 3:k=b
+return A.w(p.d.wz(l,k),$async$xP)
+case 3:j=b
 if(p.c!=null){p.a9(new A.aq7(p))
-if(k!=null)p.ahA(k)
+if(j!=null)p.ahA(j)
 else p.c.ah(t.J).f.iv(B.Rb)}case 1:return A.z(q,r)}})
 return A.A($async$xP,r)},
 K(a){var s,r,q,p,o,n=this,m=null,l=A.xP(B.C,!0,0,A.aG("AI Headshots",m,m,m,A.aH().$1$fontWeight(B.z),m,m))
@@ -90085,7 +90085,7 @@ A.Ld.prototype={
 wz(a,b){return this.ZH(a,b)},
 ZH(a,b){var s=0,r=A.B(t.T),q,p=2,o=[],n,m,l,k,j,i,h,g,f
 var $async$wz=A.x(function(c,d){if(c===1){o.push(d)
-s=p}while(true)switch(s){case 0:g=A.d8("https://fal.run/fal-ai/flux-pro/kontext",0,null)
+s=p}while(true)switch(s){case 0:g=A.d8("https://fal.run/fal-ai/nano-banana-pro/edit",0,null)
 p=4
 A.e4("Sending FLUX Kontext Max Request to Fal.ai: "+A.k(g))
 A.e4("Using Reference Image URL: "+b)
@@ -90093,7 +90093,7 @@ A.e4("Prompt: "+a)
 j=t.N
 i=A.a0(["Content-Type","application/json","Authorization",u.g],j,j)
 s=7
-return A.w(A.Ik(g,B.a7.v0(A.a0(["prompt",a,"negative_prompt","(deformed iris, deformed pupils, semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime, mutated hands and fingers:1.4), (deformed, distorted, disfigured:1.3), poorly drawn, bad anatomy, wrong anatomy, extra limb, missing limb, floating limbs, disconnected limbs, mutation, mutated, ugly, disgusting, blur, out of focus, overexposed","guidance_scale",5,"image_url",b,"image_size","portrait_4_3"],j,t.K),null),null,i),$async$wz)
+return A.w(A.Ik(g,B.a7.v0(A.a0(["prompt",a,"image_urls",A.b([b],t.s)],j,t.K),null),null,i),$async$wz)
 case 7:n=d
 A.e4("Fal.ai Inference Response Status: "+n.b)
 if(n.b===200){j=n
