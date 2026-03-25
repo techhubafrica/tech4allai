@@ -90085,7 +90085,7 @@ A.Ld.prototype={
 wz(a,b){return this.ZH(a,b)},
 ZH(a,b){var s=0,r=A.B(t.T),q,p=2,o=[],n,m,l,k,j,i,h,g,f
 var $async$wz=A.x(function(c,d){if(c===1){o.push(d)
-s=p}while(true)switch(s){case 0:g=A.d8("https://fal.run/fal-ai/flux-pro/kontext/max",0,null)
+s=p}while(true)switch(s){case 0:g=A.d8("https://fal.run/fal-ai/flux-pro/kontext",0,null)
 p=4
 A.e4("Sending FLUX Kontext Max Request to Fal.ai: "+A.k(g))
 A.e4("Using Reference Image URL: "+b)
