@@ -1,12 +1,12 @@
-const CACHE_NAME = 'tech4all-proxy-bypass-v3';
+const CACHE_NAME = 'tech4all-proxy-bypass-v4';
 
 self.addEventListener('install', (event) => {
-    console.log('[Proxy SW] Installing v3...');
+    console.log('[Proxy SW] Installing v4...');
     self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
-    console.log('[Proxy SW] Activating v3 and destroying old caches...');
+    console.log('[Proxy SW] Activating v4 and destroying old caches...');
     event.waitUntil(
         caches.keys().then((cacheNames) => {
             return Promise.all(
