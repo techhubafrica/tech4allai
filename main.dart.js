@@ -91646,7 +91646,8 @@ $S:0}
 A.at2.prototype={
 $0(){var s=this.b,r=this.a
 if(s!=null){r.at=1
-r.ay=s}else{r.as=null
+r.ay=s
+r.ax=!1}else{r.as=null
 r.ax=!1
 r.at=0
 r.c.a7(t.J).f.eE(B.Th)}},
