@@ -19,14 +19,6 @@ self.addEventListener('activate', function (event) {
       );
     }).then(function () {
       return self.clients.claim();
-    }).then(function () {
-      // Force all open clients/tabs to reload immediately
-      return self.clients.matchAll({ type: 'window' }).then(function (clients) {
-        clients.forEach(function (client) {
-          console.log('Forcing client reload:', client.url);
-          client.navigate(client.url);
-        });
-      });
     })
   );
 });

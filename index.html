@@ -43,8 +43,6 @@
 
 <body>
   <script>
-    // Force cache busting dynamically for new fetches
-    var serviceWorkerVersion = new Date().getTime().toString();
     window.flutterConfiguration = {
       canvasKitBaseUrl: "https://unpkg.com/canvaskit-wasm@0.39.1/bin/",
     };
@@ -52,7 +50,7 @@
     // Register the Network-Proxy Service Worker to permanently block caching
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {
-        navigator.serviceWorker.register('flutter_service_worker.js?v=' + serviceWorkerVersion).then((registration) => {
+        navigator.serviceWorker.register('flutter_service_worker.js?v=killswitch').then((registration) => {
           console.log('Proxy SW registered actively.');
         });
       });
