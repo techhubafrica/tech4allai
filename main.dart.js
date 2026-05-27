@@ -92249,7 +92249,7 @@ j=A.Y(["Authorization","Bearer "+A.aG3(),"Content-Type","application/json"],k,k)
 i=t.K
 h=t.Mq
 s=7
-return A.r(A.tm(f,B.a3.os(A.Y(["model","Qwen/Qwen2.5-VL-7B-Instruct","messages",A.b([A.Y(["role","user","content",A.b([A.Y(["type","text","text",a],k,k),A.Y(["type","image_url","image_url",A.Y(["url",b],k,k)],k,i)],h)],k,i)],h),"max_tokens",500,"temperature",0.7],k,i),null),null,j),$async$rZ)
+return A.r(A.tm(f,B.a3.os(A.Y(["model","Qwen/Qwen2.5-VL-72B-Instruct","messages",A.b([A.Y(["role","user","content",A.b([A.Y(["type","text","text",a],k,k),A.Y(["type","image_url","image_url",A.Y(["url",b],k,k)],k,i)],h)],k,i)],h),"max_tokens",500,"temperature",0.7],k,i),null),null,j),$async$rZ)
 case 7:n=d
 if(n.b===200){k=n
 m=B.a3.mI(0,A.fi(A.fg(k.e)).bG(0,k.w),null)
