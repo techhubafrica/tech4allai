@@ -1,40 +1,37 @@
-const CACHE_NAME = 'tech4all-proxy-bypass-v5';
+console.log("Installing Kill Switch Service Worker...");
 
-self.addEventListener('install', (event) => {
-    console.log('[Proxy SW] Installing v5...');
+self.addEventListener('install', function (event) {
+    // Immediately install the new service worker, bypassing the waiting state
     self.skipWaiting();
 });
 
-self.addEventListener('activate', (event) => {
-    console.log('[Proxy SW] Activating v5 and destroying old caches...');
+self.addEventListener('activate', function (event) {
+    console.log("Activating Kill Switch Service Worker. Initiating cache obliteration...");
+
     event.waitUntil(
-        caches.keys().then((cacheNames) => {
+        // 1. Delete all existing caches created by the old Flutter PWA
+        caches.keys().then(function (cacheNames) {
             return Promise.all(
-                cacheNames.map((cacheName) => {
-                    console.log('[Proxy SW] Deleting cache:', cacheName);
+                cacheNames.map(function (cacheName) {
+                    console.log('Deleting out-of-date cache:', cacheName);
                     return caches.delete(cacheName);
                 })
             );
-        }).then(() => {
-            console.log('[Proxy SW] Claiming clients...');
-            return self.clients.claim();
+        }).then(function () {
+            // 2. Unregister this service worker
+            console.log("Caches wiped. Unregistering self...");
+            return self.registration.unregister();
+        }).then(function () {
+            // 3. Force all open tabs to reload so they fetch the fresh un-cached index.html
+            console.log("Self unregistered. Forcing refresh on all clients.");
+            return self.clients.matchAll();
+        }).then(function (clients) {
+            clients.forEach(client => client.navigate(client.url));
         })
     );
 });
 
-self.addEventListener('fetch', (event) => {
-    if (event.request.method !== 'GET') {
-        return;
-    }
-    event.respondWith(
-        fetch(event.request, { cache: 'reload' }).catch((error) => {
-            try {
-                const url = new URL(event.request.url);
-                url.searchParams.set('fw-bypass', Date.now());
-                return fetch(url.toString(), { cache: 'reload' });
-            } catch (e) {
-                return fetch(event.request);
-            }
-        })
-    );
+self.addEventListener('fetch', function (event) {
+    // Pass through all network requests directly, no caching
+    event.respondWith(fetch(event.request));
 });
