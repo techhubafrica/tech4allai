@@ -1,37 +1,43 @@
-console.log("Installing Kill Switch Service Worker...");
+const CACHE_NAME = 'tech4all-kill-switch-v2';
+
+console.log("Installing Ultimate Kill Switch Service Worker v2...");
 
 self.addEventListener('install', function (event) {
-    // Immediately install the new service worker, bypassing the waiting state
-    self.skipWaiting();
+  self.skipWaiting();
 });
 
 self.addEventListener('activate', function (event) {
-    console.log("Activating Kill Switch Service Worker. Initiating cache obliteration...");
+  console.log("Activating Ultimate Kill Switch. Purging all caches permanently...");
 
-    event.waitUntil(
-        // 1. Delete all existing caches created by the old Flutter PWA
-        caches.keys().then(function (cacheNames) {
-            return Promise.all(
-                cacheNames.map(function (cacheName) {
-                    console.log('Deleting out-of-date cache:', cacheName);
-                    return caches.delete(cacheName);
-                })
-            );
-        }).then(function () {
-            // 2. Unregister this service worker
-            console.log("Caches wiped. Unregistering self...");
-            return self.registration.unregister();
-        }).then(function () {
-            // 3. Force all open tabs to reload so they fetch the fresh un-cached index.html
-            console.log("Self unregistered. Forcing refresh on all clients.");
-            return self.clients.matchAll();
-        }).then(function (clients) {
-            clients.forEach(client => client.navigate(client.url));
+  event.waitUntil(
+    caches.keys().then(function (cacheNames) {
+      return Promise.all(
+        cacheNames.map(function (cacheName) {
+          console.log('Obliterating cache:', cacheName);
+          return caches.delete(cacheName);
         })
-    );
+      );
+    }).then(function () {
+      return self.clients.claim();
+    }).then(function () {
+      // Force all open clients/tabs to reload immediately
+      return self.clients.matchAll({ type: 'window' }).then(function (clients) {
+        clients.forEach(function (client) {
+          console.log('Forcing client reload:', client.url);
+          client.navigate(client.url);
+        });
+      });
+    })
+  );
 });
 
+// A permanent bypass that guarantees NO cached assets are ever served or stored
 self.addEventListener('fetch', function (event) {
-    // Pass through all network requests directly, no caching
-    event.respondWith(fetch(event.request));
+  // Prevent caching of any assets, forcing fresh network fetches
+  event.respondWith(
+    fetch(event.request, { cache: 'no-store' }).catch(function () {
+      // Fallback if no-store is not supported by event request type
+      return fetch(event.request);
+    })
+  );
 });
