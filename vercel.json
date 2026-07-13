@@ -1,7 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "node tool/stamp_web_build.js && flutter build web --release --dart-define=APP_BUILD_ID=$VERCEL_GIT_COMMIT_SHA",
-  "outputDirectory": "build/web",
   "headers": [
     {
       "source": "/",
