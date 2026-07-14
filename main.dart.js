@@ -95770,18 +95770,17 @@ A.rX.prototype={
 ma(a){return this.aww(a)},
 aww(a4){var s=0,r=A.x(t.T),q,p=2,o=[],n=this,m,l,k,j,i,h,g,f,e,d,c,b,a,a0,a1,a2,a3
 var $async$ma=A.t(function(a5,a6){if(a5===1){o.push(a6)
-s=p}while(true)switch(s){case 0:a2=a4.c
-a2===$&&A.a()
-h=A.CH(a2,$.aDm().a).alf(1)[1].toLowerCase()
-a2=n.a
-g=a2.geU().c
+s=p}while(true)switch(s){case 0:a2=A.CH(a4.b,$.aDm().a).alf(1)[1].toLowerCase()
+if(a2.length===0)a2=".jpg"
+h=n.a
+g=h.geU().c
 g=g==null?null:g.r
 f=g==null?null:g.a
 e=Date.now()
 d=A.b([],t.s)
 if(f!=null){g=""+e
-d.push(f+"/headshots/"+g+"_headshot"+h)
-d.push("headshots/"+f+"/"+g+"_headshot"+h)}d.push("headshots/"+e+"_headshot"+h)
+d.push(f+"/headshots/"+g+"_headshot"+a2)
+d.push("headshots/"+f+"/"+g+"_headshot"+a2)}d.push("headshots/"+e+"_headshot"+a2)
 s=3
 return A.p(a4.xb(),$async$ma)
 case 3:m=a6
@@ -95790,7 +95789,7 @@ g=d.length,c=0
 case 4:if(!(c<d.length)){s=6
 break}k=d[c]
 p=8
-b=a2.at
+b=h.at
 b===$&&A.a()
 a=b.c
 a===$&&A.a()
@@ -95819,11 +95818,11 @@ break
 case 10:case 5:d.length===g||(0,A.L)(d),++c
 s=4
 break
-case 6:if(l!=null){a2=a2.geU().c
-a2=a2==null?null:a2.r
-a1=a2==null?null:a2.a
-a2=a1==null?"null":a1
-throw A.e("User: "+a2+". Paths: "+B.b.bn(d," | ")+". Err: "+A.k(l))}q=null
+case 6:if(l!=null){h=h.geU().c
+h=h==null?null:h.r
+a1=h==null?null:h.a
+h=a1==null?"null":a1
+throw A.e("User: "+h+". Paths: "+B.b.bn(d," | ")+". Err: "+A.k(l))}q=null
 s=1
 break
 case 1:return A.v(q,r)
