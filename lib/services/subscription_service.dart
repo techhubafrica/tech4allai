@@ -172,6 +172,7 @@ class SubscriptionService {
           'amount': amountGHS.toStringAsFixed(2),
           'description': 'Tech4All $tier Subscription Upgrade',
           'callback_url': 'https://tech4all-ai.techhubafrica.org/webhook/rushpay',
+          'customer_email': email,
           'metadata': {
             'user_id': userId,
             'tier': tier,
@@ -179,7 +180,7 @@ class SubscriptionService {
         }),
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         final res = jsonDecode(response.body);
         if (res['success'] == true) {
           return res['data'];
@@ -207,7 +208,7 @@ class SubscriptionService {
         }),
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         final res = jsonDecode(response.body);
         if (res['success'] == true && res['data'] != null) {
           return res['data']['widget_session_token'] ?? res['data']['token'];

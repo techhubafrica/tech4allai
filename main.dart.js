@@ -100977,9 +100977,9 @@ p=4
 f=t.N
 h=A.U(["Content-Type","application/json","X-API-Key","rp_e67014a3fd936ceba21a9ffe46a6399f"],f,f)
 s=7
-return A.n(A.ks(l,B.Q.kn(A.U(["amount",B.h.aa(a,2),"description","Tech4All "+c+" Subscription Upgrade","callback_url",u.Z,"metadata",A.U(["user_id",m,"tier",c],f,f)],f,t.K),null),null,h),$async$Cl)
+return A.n(A.ks(l,B.Q.kn(A.U(["amount",B.h.aa(a,2),"description","Tech4All "+c+" Subscription Upgrade","callback_url",u.Z,"customer_email",b,"metadata",A.U(["user_id",m,"tier",c],f,f)],f,t.K),null),null,h),$async$Cl)
 case 7:k=a0
-if(k.b===200){f=k
+if(k.b===200||k.b===201){f=k
 j=B.Q.hc(0,A.cZ(A.cY(f.e)).b_(0,f.w),null)
 if(J.d(J.a2(j,"success"),!0)){f=J.a2(j,"data")
 q=f
@@ -101013,7 +101013,7 @@ j=A.U(["Content-Type","application/json","X-API-Key","rp_e67014a3fd936ceba21a9ff
 s=7
 return A.n(A.ks(h,B.Q.kn(A.U(["payment_reference",a],k,k),null),null,j),$async$Cm)
 case 7:n=c
-if(n.b===200){k=n
+if(n.b===200||n.b===201){k=n
 m=B.Q.hc(0,A.cZ(A.cY(k.e)).b_(0,k.w),null)
 if(J.d(J.a2(m,"success"),!0)&&J.a2(m,"data")!=null){k=J.a2(J.a2(m,"data"),"widget_session_token")
 if(k==null)k=J.a2(J.a2(m,"data"),"token")
