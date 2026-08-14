@@ -106,13 +106,43 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ success: true, message: `Payment is pending or failed (status: ${paymentStatus})` });
     }
 
-    // Upgrade subscription tier
-    const userId = paymentMetadata.user_id;
-    const tier = paymentMetadata.tier; // 'BASIC' or 'PRO'
+    // Connect to Supabase
+    if (!supabaseServiceKey) {
+      console.error('SUPABASE_SERVICE_ROLE_KEY is not defined in environment.');
+      return res.status(500).json({ error: 'Backend server configuration error' });
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Query pending transaction to resolve user_id and tier
+    console.log('Resolving transaction metadata from pending_payments for:', paymentRef);
+    const { data: pendingData, error: pendingError } = await supabase
+      .from('pending_payments')
+      .select('user_id, tier, status')
+      .eq('payment_reference', paymentRef)
+      .maybeSingle();
+
+    if (pendingError) {
+      console.error('Database query error fetching pending payment:', pendingError);
+      return res.status(500).json({ error: 'Database verification error: ' + pendingError.message });
+    }
+
+    if (!pendingData) {
+      console.error('Transaction reference not found in database:', paymentRef);
+      return res.status(400).json({ error: 'Transaction reference not found in database' });
+    }
+
+    if (pendingData.status === 'completed') {
+      console.log('Transaction already processed and completed.');
+      return res.status(200).json({ success: true, message: 'Transaction already processed and completed' });
+    }
+
+    const userId = pendingData.user_id;
+    const tier = pendingData.tier;
 
     if (!userId || !tier) {
-      console.error('Missing user_id or tier in payment metadata:', paymentMetadata);
-      return res.status(400).json({ error: 'Missing user_id or tier metadata' });
+      console.error('Missing user_id or tier in pending payment record:', pendingData);
+      return res.status(400).json({ error: 'Invalid pending payment record details' });
     }
 
     if (!['BASIC', 'PRO'].includes(tier.toUpperCase())) {
@@ -124,16 +154,10 @@ module.exports = async function handler(req, res) {
 
     console.log(`Upgrading user ${userId} to ${tier} tier. Awarding $${creditsToAward} credits.`);
 
-    // Connect to Supabase
-    if (!supabaseServiceKey) {
-      console.error('SUPABASE_SERVICE_ROLE_KEY is not defined in environment.');
-      return res.status(500).json({ error: 'Backend server configuration error' });
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
     const resetDate = new Date();
     resetDate.setMonth(resetDate.getMonth() + 1);
 
+    // Upsert subscription
     const { error: dbError } = await supabase
       .from('user_subscriptions')
       .upsert({
@@ -150,6 +174,18 @@ module.exports = async function handler(req, res) {
     }
 
     console.log('Database tier update succeeded.');
+
+    // Mark pending payment as completed
+    const { error: updateError } = await supabase
+      .from('pending_payments')
+      .update({ status: 'completed' })
+      .eq('payment_reference', paymentRef);
+
+    if (updateError) {
+      console.error('Warning: Failed to mark pending payment status as completed:', updateError);
+    } else {
+      console.log('Pending payment status marked as completed.');
+    }
 
     // Send transactional receipt email via Resend
     if (resend && customerEmail) {

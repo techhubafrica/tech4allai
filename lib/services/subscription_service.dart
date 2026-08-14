@@ -182,8 +182,24 @@ class SubscriptionService {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final res = jsonDecode(response.body);
-        if (res['success'] == true) {
-          return res['data'];
+        if (res['success'] == true && res['data'] != null) {
+          final paymentData = res['data'];
+          final ref = paymentData['payment_reference'];
+          if (ref != null) {
+            // Save to pending_payments table in Supabase
+            try {
+              await _supabase.from('pending_payments').insert({
+                'payment_reference': ref,
+                'user_id': userId,
+                'tier': tier.toUpperCase(),
+              });
+              print('Successfully logged pending payment reference $ref in database.');
+            } catch (dbErr) {
+              print('Warning: Failed to log pending payment reference: $dbErr');
+              // Proceed anyway since we got the payment reference from RushPay
+            }
+          }
+          return paymentData;
         }
       }
       print('RushPay create payment error: ${response.statusCode} - ${response.body}');
