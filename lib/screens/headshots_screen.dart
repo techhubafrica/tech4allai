@@ -10,6 +10,9 @@ import '../services/fal_api_service.dart';
 import '../services/supabase_storage_service.dart';
 import '../services/subscription_service.dart';
 import '../widgets/upgrade_prompt_dialog.dart';
+import '../services/chat_history_service.dart';
+import '../widgets/chat_history_drawer.dart';
+import 'tools_hub_screen.dart';
 
 class HeadshotsScreen extends StatefulWidget {
   const HeadshotsScreen({super.key});
@@ -22,6 +25,31 @@ class _HeadshotsScreenState extends State<HeadshotsScreen> {
   final FalApiService _falService = FalApiService();
   final SupabaseStorageService _supabaseService = SupabaseStorageService();
   
+  final ChatHistoryService _historyService = ChatHistoryService();
+  String? _activeSessionId;
+
+  Future<void> _loadSessionHeadshot(Map<String, dynamic> session) async {
+    setState(() => _isGenerating = true);
+    try {
+      final dbMsgs = await _historyService.getMessages(session['id']);
+      final imgMsg = dbMsgs.firstWhere(
+        (m) => m['image_url'] != null && m['image_url'].isNotEmpty,
+        orElse: () => <String, dynamic>{},
+      );
+      
+      setState(() {
+        _activeSessionId = session['id'];
+        _isGenerating = false;
+      });
+      if (imgMsg.isNotEmpty && imgMsg['image_url'] != null) {
+        _showResultDialog(imgMsg['image_url']);
+      }
+    } catch (e) {
+      print('Error loading headshot from history: $e');
+      setState(() => _isGenerating = false);
+    }
+  }
+
   final SubscriptionService _subscriptionService = SubscriptionService();
   String _userTier = 'FREE';
   double _userCredits = 0.0;
@@ -277,6 +305,23 @@ class _HeadshotsScreenState extends State<HeadshotsScreen> {
 
       if (imageUrl != null) {
         _showResultDialog(imageUrl);
+        try {
+          final session = await _historyService.createSession('headshots', initialTitle: '$_selectedStyle Headshot');
+          _activeSessionId = session['id'];
+          await _historyService.addMessage(
+            _activeSessionId!,
+            isUser: true,
+            message: 'Style: $_selectedStyle, Gender: $_selectedGender',
+          );
+          await _historyService.addMessage(
+            _activeSessionId!,
+            isUser: false,
+            message: 'Generated professional headshot successfully.',
+            imageUrl: imageUrl,
+          );
+        } catch (dbErr) {
+          print('Error saving headshot to history database: $dbErr');
+        }
       } else {
          ScaffoldMessenger.of(context).showSnackBar(
              const SnackBar(content: Text('AI Generation failed. Please try again.')),
@@ -290,6 +335,21 @@ class _HeadshotsScreenState extends State<HeadshotsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundDark,
+      drawer: ChatHistoryDrawer(
+        featureType: 'headshots',
+        activeSessionId: _activeSessionId,
+        onSessionSelected: (session) {
+          _loadSessionHeadshot(session);
+        },
+        onNewChatStarted: () {
+          setState(() {
+            _activeSessionId = null;
+            _referenceImageBytes = null;
+            _referenceUrl = null;
+            _customPromptController.clear();
+          });
+        },
+      ),
       appBar: AppBar(
         title: Text(
           'AI Headshots',
@@ -298,6 +358,26 @@ class _HeadshotsScreenState extends State<HeadshotsScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const ToolsHubScreen()),
+            );
+          },
+        ),
+        actions: [
+          Builder(
+            builder: (context) => IconButton(
+              icon: const Icon(Icons.history, color: Colors.white),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            ),
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: SafeArea(
         child: Column(

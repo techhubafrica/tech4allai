@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -7,7 +8,10 @@ import '../constants/colors.dart';
 import '../services/hugging_face_service.dart';
 import '../services/supabase_storage_service.dart';
 import '../services/subscription_service.dart';
+import '../services/chat_history_service.dart';
 import '../widgets/upgrade_prompt_dialog.dart';
+import '../widgets/chat_history_drawer.dart';
+import '../widgets/formatted_message_view.dart';
 import 'settings_screen.dart';
 import 'tools_hub_screen.dart';
 
@@ -24,7 +28,11 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
   final ScrollController _scrollController = ScrollController();
   final FocusNode _focusNode = FocusNode();
   
-  final List<Map<String, dynamic>> _messages = [
+  final ChatHistoryService _historyService = ChatHistoryService();
+  String? _activeSessionId;
+  bool _isLoadingMessages = false;
+  
+  List<Map<String, dynamic>> _messages = [
     {
       'isUser': false,
       'message': 'Hello! I am your Tech4All AI assistant. How can I help you today?',
@@ -46,6 +54,29 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
   void initState() {
     super.initState();
     _refreshLimitInfo();
+  }
+
+  Future<void> _loadMessages() async {
+    if (_activeSessionId == null) return;
+    setState(() => _isLoadingMessages = true);
+    try {
+      final dbMsgs = await _historyService.getMessages(_activeSessionId!);
+      if (mounted) {
+        setState(() {
+          _messages = dbMsgs.map((m) => {
+            'isUser': m['is_user'] == true,
+            'message': m['message'] as String,
+            'imageUrl': m['image_url'] as String?,
+            'isLoading': false,
+          }).toList();
+          _isLoadingMessages = false;
+        });
+        _scrollToBottom();
+      }
+    } catch (e) {
+      print('Error loading messages: $e');
+      if (mounted) setState(() => _isLoadingMessages = false);
+    }
   }
 
   Future<void> _refreshLimitInfo() async {
@@ -159,6 +190,32 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
 
     final String activeImageUrl = _uploadedImageUrl ?? '';
     final hasImage = activeImageUrl.isNotEmpty;
+    final Uint8List? imageBytesCopy = _attachedImageBytes;
+
+    // Create session if not active
+    if (_activeSessionId == null) {
+      try {
+        final session = await _historyService.createSession('main_chat', initialTitle: text.isEmpty ? 'Image Analysis' : text);
+        _activeSessionId = session['id'];
+      } catch (e) {
+        print('Error creating session: $e');
+        _activeSessionId = 'local_${DateTime.now().millisecondsSinceEpoch}';
+      }
+    }
+
+    // Save user message to database
+    if (_activeSessionId != null) {
+      try {
+        await _historyService.addMessage(
+          _activeSessionId!,
+          isUser: true,
+          message: text.isEmpty && hasImage ? 'Attached Image' : text,
+          imageUrl: hasImage ? activeImageUrl : null,
+        );
+      } catch (e) {
+        print('Error saving user message to database: $e');
+      }
+    }
 
     setState(() {
       _messages.add({
@@ -185,15 +242,33 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
 
     // Call API
     String response;
-    if (hasImage) {
+    if (hasImage || imageBytesCopy != null) {
+      String visionUrl = activeImageUrl;
+      if (imageBytesCopy != null) {
+        final base64String = base64Encode(imageBytesCopy);
+        visionUrl = 'data:image/jpeg;base64,$base64String';
+      }
       // Use Vision model
-      response = await _hfService.generateVisionText(text.isEmpty ? "Describe this image" : text, activeImageUrl);
+      response = await _hfService.generateVisionText(text.isEmpty ? "Describe this image" : text, visionUrl);
     } else {
       // Use Standard Chat model
       final modelId = _selectedModel == 'Sonder 0.1 Pro' 
           ? HuggingFaceService.modelChatSonder120b 
           : HuggingFaceService.modelChatSonder20b;
       response = await _hfService.generateText(text, modelId);
+    }
+
+    // Save AI message to database
+    if (_activeSessionId != null) {
+      try {
+        await _historyService.addMessage(
+          _activeSessionId!,
+          isUser: false,
+          message: response,
+        );
+      } catch (e) {
+        print('Error saving AI response to database: $e');
+      }
     }
 
     if (mounted) {
@@ -443,6 +518,29 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundDark,
+      drawer: ChatHistoryDrawer(
+        featureType: 'main_chat',
+        activeSessionId: _activeSessionId,
+        onSessionSelected: (session) {
+          setState(() {
+            _activeSessionId = session['id'];
+          });
+          _loadMessages();
+        },
+        onNewChatStarted: () {
+          setState(() {
+            _activeSessionId = null;
+            _messages = [
+              {
+                'isUser': false,
+                'message': 'Hello! I am your Tech4All AI assistant. How can I help you today?',
+                'isLoading': false,
+                'imageUrl': null,
+              }
+            ];
+          });
+        },
+      ),
       appBar: AppBar(
         title: Text(
           'Tech4All AI',
@@ -461,6 +559,14 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
           },
         ),
         actions: [
+          Builder(
+            builder: (context) => IconButton(
+              icon: const Icon(Icons.history, color: Colors.white),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.settings, color: Colors.white),
             onPressed: () {
@@ -905,13 +1011,8 @@ class ChatMessage extends StatelessWidget {
                             ),
                           ),
                         ],
-                        Text(
-                          message,
-                          style: GoogleFonts.inter(
-                            color: Colors.white,
-                            height: 1.6,
-                            fontSize: 15,
-                          ),
+                        FormattedMessageView(
+                          text: message,
                         ),
                         if (isUser && onEdit != null) ...[
                           const SizedBox(height: 12),

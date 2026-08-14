@@ -77,6 +77,7 @@ class HuggingFaceService {
   Future<String> generateVisionText(String prompt, String imageUrl) async {
     final url = Uri.parse('$_groqUrl/chat/completions');
     try {
+      print('Attempting vision completion via Groq with model: $modelVisionChat');
       final response = await http.post(
         url,
         headers: _groqHeaders,
@@ -99,7 +100,7 @@ class HuggingFaceService {
               ]
             }
           ],
-          "max_tokens": 500,
+          "max_tokens": 1000,
           "temperature": 0.7,
         }),
       );
@@ -112,11 +113,12 @@ class HuggingFaceService {
           return result['choices'][0]['message']['content'];
         }
       } else {
-        print('Error generating vision response: ${response.statusCode} - ${response.body}');
+        print('Groq vision model failed: ${response.statusCode} - ${response.body}');
       }
     } catch (e) {
-      print('Exception generating vision response: $e');
+      print('Exception in Groq vision model: $e');
     }
+
     return "Sorry, I couldn't process the image response at this time.";
   }
 

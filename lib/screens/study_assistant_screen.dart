@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -6,7 +7,11 @@ import '../constants/colors.dart';
 import '../services/hugging_face_service.dart';
 import '../services/supabase_storage_service.dart';
 import '../services/subscription_service.dart';
+import '../services/chat_history_service.dart';
 import '../widgets/upgrade_prompt_dialog.dart';
+import '../widgets/chat_history_drawer.dart';
+import '../widgets/formatted_message_view.dart';
+import 'tools_hub_screen.dart';
 
 class StudyAssistantScreen extends StatefulWidget {
   const StudyAssistantScreen({super.key});
@@ -21,7 +26,11 @@ class _StudyAssistantScreenState extends State<StudyAssistantScreen> {
   final ScrollController _scrollController = ScrollController();
   final FocusNode _focusNode = FocusNode();
   
-  final List<Map<String, dynamic>> _messages = [
+  final ChatHistoryService _historyService = ChatHistoryService();
+  String? _activeSessionId;
+  bool _isLoadingMessages = false;
+  
+  List<Map<String, dynamic>> _messages = [
     {
       'isUser': false,
       'message': 'Hi! I\'m your Study Buddy. Need help with homework, explaining concepts, or making a quiz?',
@@ -38,10 +47,36 @@ class _StudyAssistantScreenState extends State<StudyAssistantScreen> {
   int _textRequestsLimit = 5;
   bool _isLoadingLimitInfo = true;
 
+  Uint8List? _attachedImageBytes;
+  double _uploadProgress = 0.0;
+
   @override
   void initState() {
     super.initState();
     _refreshLimitInfo();
+  }
+
+  Future<void> _loadMessages() async {
+    if (_activeSessionId == null) return;
+    setState(() => _isLoadingMessages = true);
+    try {
+      final dbMsgs = await _historyService.getMessages(_activeSessionId!);
+      if (mounted) {
+        setState(() {
+          _messages = dbMsgs.map((m) => {
+            'isUser': m['is_user'] == true,
+            'message': m['message'] as String,
+            'imageUrl': m['image_url'] as String?,
+            'isLoading': false,
+          }).toList();
+          _isLoadingMessages = false;
+        });
+        _scrollToBottom();
+      }
+    } catch (e) {
+      print('Error loading messages: $e');
+      if (mounted) setState(() => _isLoadingMessages = false);
+    }
   }
 
   Future<void> _refreshLimitInfo() async {
@@ -72,8 +107,10 @@ class _StudyAssistantScreenState extends State<StudyAssistantScreen> {
     try {
       final XFile? image = await _picker.pickImage(source: source);
       if (image != null) {
+        final bytes = await image.readAsBytes();
         setState(() {
           _attachedImage = image;
+          _attachedImageBytes = bytes;
           _isUploadingImage = true;
           _uploadedImageUrl = null;
         });
@@ -86,6 +123,7 @@ class _StudyAssistantScreenState extends State<StudyAssistantScreen> {
             _uploadedImageUrl = publicUrl;
           } else {
             _attachedImage = null;
+            _attachedImageBytes = null;
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Failed to upload image. Please try again.')),
             );
@@ -98,6 +136,7 @@ class _StudyAssistantScreenState extends State<StudyAssistantScreen> {
       setState(() {
         _isUploadingImage = false;
         _attachedImage = null;
+        _attachedImageBytes = null;
       });
     }
   }
@@ -105,6 +144,7 @@ class _StudyAssistantScreenState extends State<StudyAssistantScreen> {
   void _clearAttachedImage() {
     setState(() {
       _attachedImage = null;
+      _attachedImageBytes = null;
       _uploadedImageUrl = null;
     });
   }
@@ -129,6 +169,32 @@ class _StudyAssistantScreenState extends State<StudyAssistantScreen> {
 
     final String activeImageUrl = _uploadedImageUrl ?? '';
     final hasImage = activeImageUrl.isNotEmpty;
+    final Uint8List? imageBytesCopy = _attachedImageBytes;
+
+    // Create session if not active
+    if (_activeSessionId == null) {
+      try {
+        final session = await _historyService.createSession('study_assistant', initialTitle: text.isEmpty ? 'Study Material' : text);
+        _activeSessionId = session['id'];
+      } catch (e) {
+        print('Error creating study session: $e');
+        _activeSessionId = 'local_${DateTime.now().millisecondsSinceEpoch}';
+      }
+    }
+
+    // Save user message to database
+    if (_activeSessionId != null) {
+      try {
+        await _historyService.addMessage(
+          _activeSessionId!,
+          isUser: true,
+          message: text.isEmpty && hasImage ? 'Study Document Attached' : text,
+          imageUrl: hasImage ? activeImageUrl : null,
+        );
+      } catch (e) {
+        print('Error saving study message: $e');
+      }
+    }
 
     setState(() {
       _messages.add({
@@ -140,6 +206,7 @@ class _StudyAssistantScreenState extends State<StudyAssistantScreen> {
       _isTyping = true;
       _controller.clear();
       _attachedImage = null;
+      _attachedImageBytes = null;
       _uploadedImageUrl = null;
       _isUploadingImage = false;
     });
@@ -153,14 +220,32 @@ class _StudyAssistantScreenState extends State<StudyAssistantScreen> {
 
     // Call API
     String response;
-    if (hasImage) {
+    if (hasImage || imageBytesCopy != null) {
+      String visionUrl = activeImageUrl;
+      if (imageBytesCopy != null) {
+        final base64String = base64Encode(imageBytesCopy);
+        visionUrl = 'data:image/jpeg;base64,$base64String';
+      }
       response = await _hfService.generateVisionText(
         text.isEmpty ? "Explain this study material or concept shown in the image." : text, 
-        activeImageUrl
+        visionUrl
       );
     } else {
       final prompt = "You are a helpful study assistant. Keep answers clear and educational.\n\nUser: $text\n\nAssistant:";
       response = await _hfService.generateText(prompt, HuggingFaceService.modelChat);
+    }
+
+    // Save AI response to database
+    if (_activeSessionId != null) {
+      try {
+        await _historyService.addMessage(
+          _activeSessionId!,
+          isUser: false,
+          message: response,
+        );
+      } catch (e) {
+        print('Error saving study assistant response: $e');
+      }
     }
 
     if (mounted) {
@@ -201,6 +286,29 @@ class _StudyAssistantScreenState extends State<StudyAssistantScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundDark,
+      drawer: ChatHistoryDrawer(
+        featureType: 'study_assistant',
+        activeSessionId: _activeSessionId,
+        onSessionSelected: (session) {
+          setState(() {
+            _activeSessionId = session['id'];
+          });
+          _loadMessages();
+        },
+        onNewChatStarted: () {
+          setState(() {
+            _activeSessionId = null;
+            _messages = [
+              {
+                'isUser': false,
+                'message': 'Hi! I\'m your Study Buddy. Need help with homework, explaining concepts, or making a quiz?',
+                'isLoading': false,
+                'imageUrl': null,
+              }
+            ];
+          });
+        },
+      ),
       appBar: AppBar(
         title: Text(
           'Study Assistant',
@@ -209,6 +317,26 @@ class _StudyAssistantScreenState extends State<StudyAssistantScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const ToolsHubScreen()),
+            );
+          },
+        ),
+        actions: [
+          Builder(
+            builder: (context) => IconButton(
+              icon: const Icon(Icons.history, color: Colors.white),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            ),
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: SafeArea(
         child: Column(
@@ -507,13 +635,8 @@ class ChatMessage extends StatelessWidget {
                             ),
                           ),
                         ],
-                        Text(
-                          message,
-                          style: GoogleFonts.inter(
-                            color: Colors.white,
-                            height: 1.6,
-                            fontSize: 15,
-                          ),
+                        FormattedMessageView(
+                          text: message,
                         ),
                       ],
                     ],

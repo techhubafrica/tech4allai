@@ -8,6 +8,9 @@ import '../services/fal_api_service.dart';
 import '../services/supabase_storage_service.dart';
 import '../services/subscription_service.dart';
 import '../widgets/upgrade_prompt_dialog.dart';
+import '../services/chat_history_service.dart';
+import '../widgets/chat_history_drawer.dart';
+import 'tools_hub_screen.dart';
 
 class AiImageGeneratorScreen extends StatefulWidget {
   const AiImageGeneratorScreen({super.key});
@@ -22,6 +25,38 @@ class _AiImageGeneratorScreenState extends State<AiImageGeneratorScreen> {
   final SupabaseStorageService _storageService = SupabaseStorageService();
   final ImagePicker _picker = ImagePicker();
   
+  final ChatHistoryService _historyService = ChatHistoryService();
+  String? _activeSessionId;
+
+  Future<void> _loadSessionImage(Map<String, dynamic> session) async {
+    setState(() => _isLoading = true);
+    try {
+      final dbMsgs = await _historyService.getMessages(session['id']);
+      final imgMsg = dbMsgs.firstWhere(
+        (m) => m['image_url'] != null && m['image_url'].isNotEmpty,
+        orElse: () => <String, dynamic>{},
+      );
+      final promptMsg = dbMsgs.firstWhere(
+        (m) => m['is_user'] == true,
+        orElse: () => <String, dynamic>{},
+      );
+      
+      setState(() {
+        _activeSessionId = session['id'];
+        if (imgMsg.isNotEmpty) {
+          _generatedImageUrl = imgMsg['image_url'];
+        }
+        if (promptMsg.isNotEmpty) {
+          _promptController.text = promptMsg['message'];
+        }
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error loading image from history: $e');
+      setState(() => _isLoading = false);
+    }
+  }
+
   final SubscriptionService _subscriptionService = SubscriptionService();
   String _userTier = 'FREE';
   double _userCredits = 0.0;
@@ -183,6 +218,26 @@ class _AiImageGeneratorScreenState extends State<AiImageGeneratorScreen> {
           );
         }
       });
+
+      if (imageUrl != null) {
+        try {
+          final session = await _historyService.createSession('image_gen', initialTitle: prompt);
+          _activeSessionId = session['id'];
+          await _historyService.addMessage(
+            _activeSessionId!,
+            isUser: true,
+            message: prompt,
+          );
+          await _historyService.addMessage(
+            _activeSessionId!,
+            isUser: false,
+            message: 'Generated image successfully.',
+            imageUrl: imageUrl,
+          );
+        } catch (dbErr) {
+          print('Error saving image to history database: $dbErr');
+        }
+      }
     }
   }
 
@@ -223,6 +278,21 @@ class _AiImageGeneratorScreenState extends State<AiImageGeneratorScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundDark,
+      drawer: ChatHistoryDrawer(
+        featureType: 'image_gen',
+        activeSessionId: _activeSessionId,
+        onSessionSelected: (session) {
+          _loadSessionImage(session);
+        },
+        onNewChatStarted: () {
+          setState(() {
+            _activeSessionId = null;
+            _generatedImageUrl = null;
+            _promptController.clear();
+            _referenceImages.clear();
+          });
+        },
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -238,7 +308,12 @@ class _AiImageGeneratorScreenState extends State<AiImageGeneratorScreen> {
                         icon: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(),
-                        onPressed: () => Navigator.of(context).pop(),
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => const ToolsHubScreen()),
+                          );
+                        },
                       ),
                       const SizedBox(width: 12),
                        Container(
@@ -272,6 +347,15 @@ class _AiImageGeneratorScreenState extends State<AiImageGeneratorScreen> {
                   ),
                   Row(
                     children: [
+                      Builder(
+                        builder: (context) => IconButton(
+                          icon: const Icon(Icons.history, color: Colors.white),
+                          onPressed: () {
+                            Scaffold.of(context).openDrawer();
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(

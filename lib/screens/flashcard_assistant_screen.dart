@@ -8,6 +8,9 @@ import '../services/hugging_face_service.dart';
 import '../services/supabase_storage_service.dart';
 import '../services/subscription_service.dart';
 import '../widgets/upgrade_prompt_dialog.dart';
+import '../services/chat_history_service.dart';
+import '../widgets/chat_history_drawer.dart';
+import 'tools_hub_screen.dart';
 
 class FlashCardModel {
   final String front;
@@ -46,8 +49,37 @@ class _FlashcardAssistantScreenState extends State<FlashcardAssistantScreen> {
   final ImagePicker _picker = ImagePicker();
   final PageController _pageController = PageController();
 
+  final ChatHistoryService _historyService = ChatHistoryService();
+  String? _activeSessionId;
+
   List<FlashCardModel> _flashcards = [];
   bool _isLoading = false;
+
+  Future<void> _loadSessionFlashcards(Map<String, dynamic> session) async {
+    setState(() => _isLoading = true);
+    try {
+      final dbMsgs = await _historyService.getMessages(session['id']);
+      // Find the message containing cards metadata
+      final cardMsg = dbMsgs.firstWhere(
+        (m) => m['metadata'] != null && m['metadata']['cards'] != null,
+        orElse: () => <String, dynamic>{},
+      );
+      if (cardMsg.isNotEmpty) {
+        final List<dynamic> cardsJson = cardMsg['metadata']['cards'];
+        setState(() {
+          _flashcards = cardsJson.map((c) => FlashCardModel.fromJson(c)).toList();
+          _activeSessionId = session['id'];
+          _currentPage = 0;
+          _isLoading = false;
+        });
+      } else {
+        setState(() => _isLoading = false);
+      }
+    } catch (e) {
+      print('Error loading flashcards from history: $e');
+      setState(() => _isLoading = false);
+    }
+  }
 
   final SubscriptionService _subscriptionService = SubscriptionService();
   String _userTier = 'FREE';
@@ -184,6 +216,27 @@ class _FlashcardAssistantScreenState extends State<FlashcardAssistantScreen> {
           _uploadedImageUrl = null;
         }
       });
+
+      if (_flashcards.isNotEmpty) {
+        try {
+          final title = prompt.isNotEmpty ? prompt : 'Image Flashcards';
+          final session = await _historyService.createSession('flashcards', initialTitle: title);
+          _activeSessionId = session['id'];
+          await _historyService.addMessage(
+            _activeSessionId!,
+            isUser: true,
+            message: prompt.isEmpty ? 'Generate flashcards from attached image.' : prompt,
+          );
+          await _historyService.addMessage(
+            _activeSessionId!,
+            isUser: false,
+            message: 'Generated ${_flashcards.length} flashcards successfully.',
+            metadata: {'cards': cardsJson},
+          );
+        } catch (dbErr) {
+          print('Error saving flashcard deck to history database: $dbErr');
+        }
+      }
     } catch (e) {
       print('Error parsing flashcards: $e');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -236,6 +289,20 @@ class _FlashcardAssistantScreenState extends State<FlashcardAssistantScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundDark,
+      drawer: ChatHistoryDrawer(
+        featureType: 'flashcards',
+        activeSessionId: _activeSessionId,
+        onSessionSelected: (session) {
+          _loadSessionFlashcards(session);
+        },
+        onNewChatStarted: () {
+          setState(() {
+            _activeSessionId = null;
+            _flashcards = [];
+            _currentPage = 0;
+          });
+        },
+      ),
       appBar: AppBar(
         title: Text(
           'Flashcard',
@@ -246,12 +313,25 @@ class _FlashcardAssistantScreenState extends State<FlashcardAssistantScreen> {
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const ToolsHubScreen()),
+            );
+          },
         ),
         actions: [
+          Builder(
+            builder: (context) => IconButton(
+              icon: const Icon(Icons.history, color: Colors.white),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            ),
+          ),
           Center(
             child: Container(
-              margin: const EdgeInsets.only(right: 16),
+              margin: const EdgeInsets.only(right: 16, left: 8),
               width: 40,
               height: 40,
               decoration: BoxDecoration(
