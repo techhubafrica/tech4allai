@@ -32,24 +32,40 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const rawBodyBuffer = await getRawBody(req);
-    const rawBody = rawBodyBuffer.toString('utf8');
+    let payload = req.body;
+    let rawBody = '';
 
-    // Parse payload safely
-    let payload;
-    try {
-      payload = JSON.parse(rawBody);
-    } catch (parseErr) {
-      return res.status(400).json({ error: 'Invalid JSON payload' });
+    if (payload) {
+      if (typeof payload === 'string') {
+        rawBody = payload;
+        try {
+          payload = JSON.parse(payload);
+        } catch (e) {
+          console.error('Failed to parse string body:', e);
+        }
+      } else {
+        rawBody = JSON.stringify(payload);
+      }
     }
 
-    console.log('Received RushPay Webhook:', payload);
+    if (!payload || Object.keys(payload).length === 0) {
+      try {
+        const rawBodyBuffer = await getRawBody(req);
+        rawBody = rawBodyBuffer.toString('utf8');
+        payload = JSON.parse(rawBody);
+      } catch (parseErr) {
+        console.error('Webhook body stream parsing failed:', parseErr);
+        return res.status(400).json({ error: 'Invalid JSON payload' });
+      }
+    }
+
+    console.log('Received RushPay Webhook Payload:', payload);
 
     // Verify webhook signature
     const signatureHeader = req.headers['x-rushpay-signature'] || req.headers['x-signature'] || req.headers['signature'];
     let signatureVerified = false;
 
-    if (signatureHeader) {
+    if (signatureHeader && rawBody) {
       const computedSignature = crypto
         .createHmac('sha256', webhookSecret)
         .update(rawBody)
@@ -62,7 +78,7 @@ module.exports = async function handler(req, res) {
         console.warn('Webhook signature mismatch.');
       }
     } else {
-      console.warn('Webhook signature header missing.');
+      console.warn('Webhook signature header missing or body empty.');
     }
 
     // Reconcile status directly from RushPay API (source of truth)
