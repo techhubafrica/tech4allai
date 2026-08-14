@@ -67,7 +67,7 @@ class _PricingScreenState extends State<PricingScreen> {
             js.context.callMethod('openRushPayCheckout', [
               ref,
               widgetToken,
-              'https://tech4all-ai.techhubafrica.org/webhook/rushpay'
+              'https://tech4all-al.techhubafrica.org/webhook/rushpay'
             ]);
 
             // Show a dialog asking user to verify payment once done

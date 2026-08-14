@@ -171,7 +171,7 @@ class SubscriptionService {
         body: jsonEncode({
           'amount': amountGHS.toStringAsFixed(2),
           'description': 'Tech4All $tier Subscription Upgrade',
-          'callback_url': 'https://tech4all-ai.techhubafrica.org/webhook/rushpay',
+          'callback_url': 'https://tech4all-al.techhubafrica.org/webhook/rushpay',
           'customer_email': email,
           'metadata': {
             'user_id': userId,
