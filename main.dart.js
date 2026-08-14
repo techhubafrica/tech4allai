@@ -99921,7 +99921,7 @@ b0=A.cl(m.qR(q,b0,!1,!1,new A.azO(),"forever","0 GHS","FREE"),1)
 q=A.b([b,a,a0,a1,a2,a3],r)
 o=m.e==="BASIC"
 n=o?a4:a5
-o=A.cl(m.qR(n,q,!o,!0,new A.azP(m),c,"1 GHS","BASIC"),1)
+o=A.cl(m.qR(n,q,!o,!0,new A.azP(m),c,"100 GHS","BASIC"),1)
 r=A.b([a6,a,a7,a1,a2,a8],r)
 q=m.e==="PRO"
 n=q?a4:a9
@@ -99931,7 +99931,7 @@ b0=m.qR(q,b0,!1,!1,new A.azR(),"forever","0 GHS","FREE")
 q=A.b([b,a,a0,a1,a2,a3],r)
 o=m.e==="BASIC"
 n=o?a4:a5
-o=m.qR(n,q,!o,!0,new A.azS(m),c,"1 GHS","BASIC")
+o=m.qR(n,q,!o,!0,new A.azS(m),c,"100 GHS","BASIC")
 r=A.b([a6,a,a7,a1,a2,a8],r)
 q=m.e==="PRO"
 n=q?a4:a9
@@ -100007,7 +100007,7 @@ A.azO.prototype={
 $0(){},
 $S:0}
 A.azP.prototype={
-$0(){return this.a.n3("BASIC",1)},
+$0(){return this.a.n3("BASIC",100)},
 $S:0}
 A.azQ.prototype={
 $0(){return this.a.n3("PRO",250)},
@@ -100016,7 +100016,7 @@ A.azR.prototype={
 $0(){},
 $S:0}
 A.azS.prototype={
-$0(){return this.a.n3("BASIC",1)},
+$0(){return this.a.n3("BASIC",100)},
 $S:0}
 A.azT.prototype={
 $0(){return this.a.n3("PRO",250)},
