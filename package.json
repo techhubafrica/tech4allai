@@ -1,0 +1,9 @@
+{
+  "name": "tech4all-web-backend",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.8",
+    "resend": "^3.1.0"
+  }
+}
