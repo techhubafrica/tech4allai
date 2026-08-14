@@ -260,7 +260,7 @@ class _PricingScreenState extends State<PricingScreen> {
                         const SizedBox(width: 16),
                         Expanded(child: _buildPricingCard(
                           title: 'BASIC',
-                          price: '100 GHS',
+                          price: '1 GHS',
                           period: 'monthly',
                           features: [
                             '50 Text requests / day',
@@ -272,7 +272,7 @@ class _PricingScreenState extends State<PricingScreen> {
                           ],
                           isPopular: true,
                           buttonText: _currentTier == 'BASIC' ? 'Active' : 'Upgrade Basic',
-                          onTap: () => _handleUpgrade('BASIC', 100.0),
+                          onTap: () => _handleUpgrade('BASIC', 1.0),
                           isEnabled: _currentTier != 'BASIC',
                         )),
                         const SizedBox(width: 16),
@@ -318,7 +318,7 @@ class _PricingScreenState extends State<PricingScreen> {
                         const SizedBox(height: 24),
                         _buildPricingCard(
                           title: 'BASIC',
-                          price: '100 GHS',
+                          price: '1 GHS',
                           period: 'monthly',
                           features: [
                             '50 Text requests / day',
@@ -330,7 +330,7 @@ class _PricingScreenState extends State<PricingScreen> {
                           ],
                           isPopular: true,
                           buttonText: _currentTier == 'BASIC' ? 'Active' : 'Upgrade Basic',
-                          onTap: () => _handleUpgrade('BASIC', 100.0),
+                          onTap: () => _handleUpgrade('BASIC', 1.0),
                           isEnabled: _currentTier != 'BASIC',
                         ),
                         const SizedBox(height: 24),
