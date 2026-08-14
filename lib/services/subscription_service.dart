@@ -171,7 +171,7 @@ class SubscriptionService {
         body: jsonEncode({
           'amount': amountGHS.toStringAsFixed(2),
           'description': 'Tech4All $tier Subscription Upgrade',
-          'callback_url': 'https://tech4all-al.techhubafrica.org/webhook/rushpay',
+          'callback_url': 'https://tech4all-ai.techhubafrica.org/webhook/rushpay',
           'customer_email': email,
           'metadata': {
             'user_id': userId,
@@ -188,10 +188,11 @@ class SubscriptionService {
           if (ref != null) {
             // Save to pending_payments table in Supabase
             try {
-              await _supabase.from('pending_payments').insert({
+              await _supabase.from('pending_payments').upsert({
                 'payment_reference': ref,
                 'user_id': userId,
                 'tier': tier.toUpperCase(),
+                'status': 'pending',
               });
               print('Successfully logged pending payment reference $ref in database.');
             } catch (dbErr) {
@@ -235,5 +236,114 @@ class SubscriptionService {
       print('Exception creating RushPay widget session: $e');
     }
     return null;
+  }
+
+  /// Verify and immediately upgrade user account if payment is complete on RushPay
+  Future<bool> verifyAndApplyPayment(String paymentReference) async {
+    final userId = _supabase.auth.currentUser?.id;
+    if (userId == null) return false;
+
+    print('Checking payment status for reference: $paymentReference');
+
+    // 1. Try Vercel sync endpoint first (runs with server-side service role key)
+    final syncUrls = [
+      'https://tech4allai.vercel.app/api/sync-payment?payment_reference=$paymentReference',
+      'https://tech4all-ai.techhubafrica.org/api/sync-payment?payment_reference=$paymentReference',
+    ];
+
+    for (final syncUrl in syncUrls) {
+      try {
+        final res = await http.get(Uri.parse(syncUrl)).timeout(const Duration(seconds: 5));
+        if (res.statusCode == 200) {
+          final data = jsonDecode(res.body);
+          if (data['is_paid'] == true || data['success'] == true) {
+            print('Payment verified & synced via API: $syncUrl');
+            return true;
+          }
+        }
+      } catch (e) {
+        print('Sync endpoint check error on $syncUrl: $e');
+      }
+    }
+
+    // 2. Client-side fallback: Query RushPay directly and update database
+    try {
+      final statusUrl = Uri.parse('$_rushPayBaseUrl/api/v1/merchant/payments/status?payment_reference=$paymentReference');
+      final sRes = await http.get(statusUrl, headers: {'X-API-Key': _rushPayApiKey}).timeout(const Duration(seconds: 5));
+
+      if (sRes.statusCode == 200) {
+        final statusData = jsonDecode(sRes.body);
+        if (statusData['success'] == true && statusData['data'] != null) {
+          final pStatus = (statusData['data']['status'] ?? statusData['data']['payment_status'] ?? '').toString().toLowerCase();
+          final isPaid = statusData['data']['paid'] == true ||
+              statusData['data']['verified'] == true ||
+              ['completed', 'paid', 'successful', 'success'].contains(pStatus);
+
+          if (isPaid) {
+            // Find tier from pending_payments
+            final pendingRes = await _supabase
+                .from('pending_payments')
+                .select()
+                .eq('payment_reference', paymentReference)
+                .maybeSingle();
+
+            final tier = (pendingRes?['tier'] ?? 'BASIC').toString().toUpperCase();
+            final credits = tier == 'PRO' ? 10.0000 : 5.0000;
+            final resetDate = DateTime.now().add(const Duration(days: 30)).toIso8601String();
+
+            // Upsert subscription
+            await _supabase.from('user_subscriptions').upsert({
+              'id': userId,
+              'tier': tier,
+              'credits': credits,
+              'subscription_reset_at': resetDate,
+              'updated_at': DateTime.now().toIso8601String(),
+            });
+
+            // Mark pending_payments completed
+            await _supabase
+                .from('pending_payments')
+                .update({'status': 'completed'})
+                .eq('payment_reference', paymentReference);
+
+            print('Direct client verification successful! Upgraded to $tier');
+            return true;
+          }
+        }
+      }
+    } catch (e) {
+      print('Client-side direct verification exception: $e');
+    }
+
+    return false;
+  }
+
+  /// Automatically check any pending transactions for current user and reconcile them
+  Future<void> syncPendingPayments() async {
+    final userId = _supabase.auth.currentUser?.id;
+    if (userId == null) return;
+
+    try {
+      final List<dynamic> pendingList = await _supabase
+          .from('pending_payments')
+          .select('payment_reference')
+          .eq('user_id', userId)
+          .eq('status', 'pending')
+          .order('created_at', ascending: false)
+          .limit(5);
+
+      for (final row in pendingList) {
+        final ref = row['payment_reference'] as String?;
+        if (ref != null) {
+          final upgraded = await verifyAndApplyPayment(ref);
+          if (upgraded) {
+            print('Auto-synced pending payment: $ref');
+            break;
+          }
+        }
+      }
+    } catch (e) {
+      print('Auto-sync pending payments error: $e');
+    }
   }
 }

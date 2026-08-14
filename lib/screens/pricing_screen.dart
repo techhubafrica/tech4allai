@@ -28,6 +28,9 @@ class _PricingScreenState extends State<PricingScreen> {
 
   Future<void> _fetchSubscriptionInfo() async {
     setState(() => _isLoading = true);
+    try {
+      await _subscriptionService.syncPendingPayments();
+    } catch (_) {}
     final sub = await _subscriptionService.getSubscription();
     if (mounted && sub != null) {
       setState(() {
@@ -67,12 +70,12 @@ class _PricingScreenState extends State<PricingScreen> {
             js.context.callMethod('openRushPayCheckout', [
               ref,
               widgetToken,
-              'https://tech4all-al.techhubafrica.org/webhook/rushpay'
+              'https://tech4all-ai.techhubafrica.org/webhook/rushpay'
             ]);
 
             // Show a dialog asking user to verify payment once done
             if (mounted) {
-              _showVerificationDialog();
+              _showVerificationDialog(ref.toString());
             }
           } else {
             throw Exception('Failed to retrieve checkout session token.');
@@ -97,7 +100,7 @@ class _PricingScreenState extends State<PricingScreen> {
     }
   }
 
-  void _showVerificationDialog() {
+  void _showVerificationDialog(String ref) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -127,9 +130,21 @@ class _PricingScreenState extends State<PricingScreen> {
             ),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(context);
-              _fetchSubscriptionInfo();
+              setState(() => _isLoading = true);
+              final upgraded = await _subscriptionService.verifyAndApplyPayment(ref);
+              await _fetchSubscriptionInfo();
+              if (mounted) {
+                if (upgraded) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('🎉 Congratulations! Your subscription has been successfully upgraded!'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
+              }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,

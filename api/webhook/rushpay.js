@@ -108,14 +108,15 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: 'Invalid payment reference details returned' });
     }
 
-    const paymentStatus = statusData.data.status;
+    const paymentStatus = (statusData.data.status || statusData.data.payment_status || '').toLowerCase();
     const paymentAmount = statusData.data.amount;
     const paymentMetadata = statusData.data.metadata || {};
     const customerEmail = statusData.data.customer_email || paymentMetadata.email;
 
     // Verify payment is indeed successful
-    // Status can be: 'completed', 'paid', 'successful', 'success' depending on provider mappings.
-    const isPaid = ['completed', 'paid', 'successful', 'success'].includes(paymentStatus.toLowerCase());
+    const isPaid = statusData.data.paid === true ||
+                   statusData.data.verified === true ||
+                   ['completed', 'paid', 'successful', 'success'].includes(paymentStatus);
     
     if (!isPaid) {
       console.log(`Payment status is ${paymentStatus}. No subscription upgrade applied.`);
