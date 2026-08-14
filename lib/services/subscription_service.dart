@@ -14,9 +14,15 @@ class SubscriptionService {
   static const String _falKey = '2a647d8e-4767-4e9b-b47b-7524fcc387eb:724ada3684a44ab9e123c2be138de772';
 
   /// Get current user's subscription details
-  Future<Map<String, dynamic>?> getSubscription() async {
+  Future<Map<String, dynamic>?> getSubscription({bool syncPending = true}) async {
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null) return null;
+
+    if (syncPending) {
+      try {
+        await syncPendingPayments();
+      } catch (_) {}
+    }
 
     try {
       final response = await _supabase

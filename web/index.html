@@ -181,6 +181,19 @@
           callbackUrl: callbackUrl,
           apiBase: "https://core.rushpay.cash"
         });
+
+        // Listen for completion postMessage from RushPay
+        window.addEventListener('message', function onRushPayMsg(event) {
+          if (event.data && (
+            event.data.status === 'completed' || 
+            event.data.status === 'paid' || 
+            event.data.event === 'payment_success' ||
+            event.data.type === 'rushpay:completed'
+          )) {
+            const overlay = document.getElementById('rushpay-overlay');
+            if (overlay) overlay.remove();
+          }
+        });
       } else {
         console.error("RushPayV2 is not loaded on window.");
         alert("Failed to load RushPay payment gateway. Please check your internet connection.");
