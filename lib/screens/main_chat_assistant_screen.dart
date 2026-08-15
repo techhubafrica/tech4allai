@@ -42,6 +42,7 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
   ];
 
   bool _isTyping = false;
+  bool _isSending = false;
   String _selectedModel = 'Sonder 0.1';
 
   final SubscriptionService _subscriptionService = SubscriptionService();
@@ -171,12 +172,49 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
   }
 
   Future<void> _sendMessage({String? predefinedText}) async {
+    if (_isSending) return;
     final text = predefinedText ?? _controller.text.trim();
     if (text.isEmpty && _uploadedImageUrl == null) return;
 
-    // Limits check
+    final String activeImageUrl = _uploadedImageUrl ?? '';
+    final hasImage = activeImageUrl.isNotEmpty;
+    final Uint8List? imageBytesCopy = _attachedImageBytes;
+
+    setState(() {
+      _isSending = true;
+      _isTyping = true;
+      _messages.add({
+        'isUser': true,
+        'message': text,
+        'imageUrl': hasImage ? activeImageUrl : null,
+        'isLoading': false,
+      });
+      _controller.clear();
+      _attachedImage = null;
+      _attachedImageBytes = null;
+      _uploadedImageUrl = null;
+      _isUploadingImage = false;
+      _uploadProgress = 0.0;
+    });
+
+    _scrollToBottom();
+    Future.delayed(const Duration(milliseconds: 50), () {
+      if (mounted) {
+        _focusNode.requestFocus();
+      }
+    });
+
+    // 1. Limits check
     final allowed = await _subscriptionService.checkAndIncrementTextUsage();
     if (!allowed) {
+      setState(() {
+        _isSending = false;
+        _isTyping = false;
+        if (_messages.isNotEmpty) {
+          _messages.removeLast();
+        }
+        _controller.text = text;
+      });
       if (mounted) {
         UpgradePromptDialog.show(
           context,
@@ -188,11 +226,7 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
     }
     _refreshLimitInfo();
 
-    final String activeImageUrl = _uploadedImageUrl ?? '';
-    final hasImage = activeImageUrl.isNotEmpty;
-    final Uint8List? imageBytesCopy = _attachedImageBytes;
-
-    // Create session if not active
+    // 2. Create session if not active
     if (_activeSessionId == null) {
       try {
         final session = await _historyService.createSession('main_chat', initialTitle: text.isEmpty ? 'Image Analysis' : text);
@@ -203,7 +237,7 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
       }
     }
 
-    // Save user message to database
+    // 3. Save user message to database
     if (_activeSessionId != null) {
       try {
         await _historyService.addMessage(
@@ -217,48 +251,28 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
       }
     }
 
-    setState(() {
-      _messages.add({
-        'isUser': true,
-        'message': text,
-        'imageUrl': hasImage ? activeImageUrl : null,
-        'isLoading': false,
-      });
-      _isTyping = true;
-      _controller.clear();
-      _attachedImage = null;
-      _attachedImageBytes = null;
-      _uploadedImageUrl = null;
-      _isUploadingImage = false;
-      _uploadProgress = 0.0;
-    });
-    
-    _scrollToBottom();
-    Future.delayed(const Duration(milliseconds: 50), () {
-      if (mounted) {
-        _focusNode.requestFocus();
-      }
-    });
-
-    // Call API
+    // 4. Call API
     String response;
-    if (hasImage || imageBytesCopy != null) {
-      String visionUrl = activeImageUrl;
-      if (imageBytesCopy != null) {
-        final base64String = base64Encode(imageBytesCopy);
-        visionUrl = 'data:image/jpeg;base64,$base64String';
+    try {
+      if (hasImage || imageBytesCopy != null) {
+        String visionUrl = activeImageUrl;
+        if (imageBytesCopy != null) {
+          final base64String = base64Encode(imageBytesCopy);
+          visionUrl = 'data:image/jpeg;base64,$base64String';
+        }
+        response = await _hfService.generateVisionText(text.isEmpty ? "Describe this image" : text, visionUrl);
+      } else {
+        final modelId = _selectedModel == 'Sonder 0.1 Pro' 
+            ? HuggingFaceService.modelChatSonder120b 
+            : HuggingFaceService.modelChatSonder20b;
+        response = await _hfService.generateText(text, modelId);
       }
-      // Use Vision model
-      response = await _hfService.generateVisionText(text.isEmpty ? "Describe this image" : text, visionUrl);
-    } else {
-      // Use Standard Chat model
-      final modelId = _selectedModel == 'Sonder 0.1 Pro' 
-          ? HuggingFaceService.modelChatSonder120b 
-          : HuggingFaceService.modelChatSonder20b;
-      response = await _hfService.generateText(text, modelId);
+    } catch (e) {
+      print('Exception in AI call: $e');
+      response = "Sorry, I encountered an error processing your request. Please try again.";
     }
 
-    // Save AI message to database
+    // 5. Save AI message to database
     if (_activeSessionId != null) {
       try {
         await _historyService.addMessage(
@@ -273,6 +287,7 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
 
     if (mounted) {
       setState(() {
+        _isSending = false;
         _isTyping = false;
         _messages.add({
           'isUser': false,

@@ -92,10 +92,23 @@ class SubscriptionService {
       return allowed;
     } catch (e) {
       print('Error invoking increment_text_usage RPC: $e. Falling back to local check.');
-      // Local fallback in case database triggers aren't loaded yet
       if (sub == null) return true;
       final int todayCount = sub['text_requests_today'] ?? 0;
-      return todayCount < maxLimit;
+      if (todayCount >= maxLimit) {
+        return false;
+      }
+      try {
+        await _supabase
+            .from('user_subscriptions')
+            .update({
+              'text_requests_today': todayCount + 1,
+              'last_text_request_at': DateTime.now().toUtc().toIso8601String()
+            })
+            .eq('id', userId);
+      } catch (dbErr) {
+        print('Error updating text usage fallback count: $dbErr');
+      }
+      return true;
     }
   }
 

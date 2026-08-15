@@ -52,7 +52,7 @@ class HuggingFaceService {
           "messages": [
             {"role": "user", "content": prompt}
           ],
-          "max_tokens": 500,
+          "max_tokens": 4096,
           "temperature": 0.7,
         }),
       );
@@ -100,7 +100,7 @@ class HuggingFaceService {
               ]
             }
           ],
-          "max_tokens": 1000,
+          "max_tokens": 4096,
           "temperature": 0.7,
         }),
       );
@@ -458,7 +458,7 @@ class HuggingFaceService {
         body: jsonEncode({
           "model": imageUrl != null && imageUrl.isNotEmpty ? modelVisionChat : modelChat,
           "messages": messages,
-          "max_tokens": 1500,
+          "max_tokens": 4096,
           "temperature": 0.5,
         }),
       );

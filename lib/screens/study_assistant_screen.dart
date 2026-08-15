@@ -40,6 +40,7 @@ class _StudyAssistantScreenState extends State<StudyAssistantScreen> {
   ];
 
   bool _isTyping = false;
+  bool _isSending = false;
 
   final SubscriptionService _subscriptionService = SubscriptionService();
   String _userTier = 'FREE';
@@ -150,60 +151,23 @@ class _StudyAssistantScreenState extends State<StudyAssistantScreen> {
   }
 
   Future<void> _sendMessage({String? predefinedText}) async {
+    if (_isSending) return;
     final text = predefinedText ?? _controller.text.trim();
     if (text.isEmpty && _uploadedImageUrl == null) return;
-
-    // Limits check
-    final allowed = await _subscriptionService.checkAndIncrementTextUsage();
-    if (!allowed) {
-      if (mounted) {
-        UpgradePromptDialog.show(
-          context,
-          title: "Daily Limit Reached",
-          message: "You have completed your daily quota of requests on the $_userTier tier. Upgrade to BASIC or PRO to get up to 150 requests per day!",
-        );
-      }
-      return;
-    }
-    _refreshLimitInfo();
 
     final String activeImageUrl = _uploadedImageUrl ?? '';
     final hasImage = activeImageUrl.isNotEmpty;
     final Uint8List? imageBytesCopy = _attachedImageBytes;
 
-    // Create session if not active
-    if (_activeSessionId == null) {
-      try {
-        final session = await _historyService.createSession('study_assistant', initialTitle: text.isEmpty ? 'Study Material' : text);
-        _activeSessionId = session['id'];
-      } catch (e) {
-        print('Error creating study session: $e');
-        _activeSessionId = 'local_${DateTime.now().millisecondsSinceEpoch}';
-      }
-    }
-
-    // Save user message to database
-    if (_activeSessionId != null) {
-      try {
-        await _historyService.addMessage(
-          _activeSessionId!,
-          isUser: true,
-          message: text.isEmpty && hasImage ? 'Study Document Attached' : text,
-          imageUrl: hasImage ? activeImageUrl : null,
-        );
-      } catch (e) {
-        print('Error saving study message: $e');
-      }
-    }
-
     setState(() {
+      _isSending = true;
+      _isTyping = true;
       _messages.add({
         'isUser': true,
         'message': text,
         'imageUrl': hasImage ? activeImageUrl : null,
         'isLoading': false,
       });
-      _isTyping = true;
       _controller.clear();
       _attachedImage = null;
       _attachedImageBytes = null;
@@ -218,24 +182,76 @@ class _StudyAssistantScreenState extends State<StudyAssistantScreen> {
       }
     });
 
-    // Call API
-    String response;
-    if (hasImage || imageBytesCopy != null) {
-      String visionUrl = activeImageUrl;
-      if (imageBytesCopy != null) {
-        final base64String = base64Encode(imageBytesCopy);
-        visionUrl = 'data:image/jpeg;base64,$base64String';
+    // 1. Limits check
+    final allowed = await _subscriptionService.checkAndIncrementTextUsage();
+    if (!allowed) {
+      setState(() {
+        _isSending = false;
+        _isTyping = false;
+        if (_messages.isNotEmpty) {
+          _messages.removeLast();
+        }
+        _controller.text = text;
+      });
+      if (mounted) {
+        UpgradePromptDialog.show(
+          context,
+          title: "Daily Limit Reached",
+          message: "You have completed your daily quota of requests on the $_userTier tier. Upgrade to BASIC or PRO to get up to 150 requests per day!",
+        );
       }
-      response = await _hfService.generateVisionText(
-        text.isEmpty ? "Explain this study material or concept shown in the image." : text, 
-        visionUrl
-      );
-    } else {
-      final prompt = "You are a helpful study assistant. Keep answers clear and educational.\n\nUser: $text\n\nAssistant:";
-      response = await _hfService.generateText(prompt, HuggingFaceService.modelChat);
+      return;
+    }
+    _refreshLimitInfo();
+
+    // 2. Create session if not active
+    if (_activeSessionId == null) {
+      try {
+        final session = await _historyService.createSession('study_assistant', initialTitle: text.isEmpty ? 'Study Material' : text);
+        _activeSessionId = session['id'];
+      } catch (e) {
+        print('Error creating study session: $e');
+        _activeSessionId = 'local_${DateTime.now().millisecondsSinceEpoch}';
+      }
     }
 
-    // Save AI response to database
+    // 3. Save user message to database
+    if (_activeSessionId != null) {
+      try {
+        await _historyService.addMessage(
+          _activeSessionId!,
+          isUser: true,
+          message: text.isEmpty && hasImage ? 'Study Document Attached' : text,
+          imageUrl: hasImage ? activeImageUrl : null,
+        );
+      } catch (e) {
+        print('Error saving study message: $e');
+      }
+    }
+
+    // 4. Call API
+    String response;
+    try {
+      if (hasImage || imageBytesCopy != null) {
+        String visionUrl = activeImageUrl;
+        if (imageBytesCopy != null) {
+          final base64String = base64Encode(imageBytesCopy);
+          visionUrl = 'data:image/jpeg;base64,$base64String';
+        }
+        response = await _hfService.generateVisionText(
+          text.isEmpty ? "Explain this study material or concept shown in the image." : text, 
+          visionUrl
+        );
+      } else {
+        final prompt = "You are a helpful study assistant. Keep answers clear and educational.\n\nUser: $text\n\nAssistant:";
+        response = await _hfService.generateText(prompt, HuggingFaceService.modelChat);
+      }
+    } catch (e) {
+      print('Exception in study AI call: $e');
+      response = "Sorry, I encountered an error processing your study request. Please try again.";
+    }
+
+    // 5. Save AI response to database
     if (_activeSessionId != null) {
       try {
         await _historyService.addMessage(
@@ -250,6 +266,7 @@ class _StudyAssistantScreenState extends State<StudyAssistantScreen> {
 
     if (mounted) {
       setState(() {
+        _isSending = false;
         _isTyping = false;
         _messages.add({
           'isUser': false,
