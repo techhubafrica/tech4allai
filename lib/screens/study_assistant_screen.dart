@@ -327,15 +327,30 @@ class _StudyAssistantScreenState extends State<StudyAssistantScreen> {
           },
         ),
         actions: [
-          Builder(
-            builder: (context) => IconButton(
-              icon: const Icon(Icons.history, color: Colors.white),
-              onPressed: () {
-                Scaffold.of(context).openDrawer();
-              },
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            child: Builder(
+              builder: (context) => ElevatedButton.icon(
+                onPressed: () => Scaffold.of(context).openDrawer(),
+                icon: const Icon(Icons.history, size: 16, color: Colors.white),
+                label: Text(
+                  'History',
+                  style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.neutralSurface,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    side: const BorderSide(color: AppColors.neutralBorder),
+                  ),
+                ),
+              ),
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 16),
         ],
       ),
       body: SafeArea(

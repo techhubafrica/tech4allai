@@ -293,111 +293,96 @@ class _AiImageGeneratorScreenState extends State<AiImageGeneratorScreen> {
           });
         },
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                        onPressed: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (context) => const ToolsHubScreen()),
-                          );
-                        },
-                      ),
-                      const SizedBox(width: 12),
-                       Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Center(
-                          child: Text(
-                            'T',
-                            style: GoogleFonts.inter(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              fontSize: 18,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        'Tech4All',
-                        style: GoogleFonts.inter(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
+      appBar: AppBar(
+        title: Text(
+          'Image Generator',
+          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const ToolsHubScreen()),
+            );
+          },
+        ),
+        actions: [
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            child: Builder(
+              builder: (context) => ElevatedButton.icon(
+                onPressed: () => Scaffold.of(context).openDrawer(),
+                icon: const Icon(Icons.history, size: 16, color: Colors.white),
+                label: Text(
+                  'History',
+                  style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.neutralSurface,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    side: const BorderSide(color: AppColors.neutralBorder),
                   ),
-                  Row(
-                    children: [
-                      Builder(
-                        builder: (context) => IconButton(
-                          icon: const Icon(Icons.history, color: Colors.white),
-                          onPressed: () {
-                            Scaffold.of(context).openDrawer();
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppColors.neutralSurface,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: AppColors.neutralBorder),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              _userTier == 'FREE' ? Icons.bolt : Icons.stars,
-                              color: AppColors.primary,
-                              size: 16,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              _isLoadingLimitInfo ? 'Loading...' : _userTier,
-                              style: GoogleFonts.inter(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: AppColors.neutralSurface,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: AppColors.neutralBorder),
-                        ),
-                        child: const Icon(Icons.person, color: Colors.white, size: 20),
-                      ),
-                    ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Center(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppColors.neutralSurface,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppColors.neutralBorder),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    _userTier == 'FREE' ? Icons.bolt : Icons.stars,
+                    color: AppColors.primary,
+                    size: 14,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    _isLoadingLimitInfo ? 'Loading...' : _userTier,
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                 ],
               ),
             ),
+          ),
+          const SizedBox(width: 8),
+          Center(
+            child: Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: AppColors.neutralSurface,
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.neutralBorder),
+              ),
+              child: const Icon(Icons.person, color: Colors.white, size: 16),
+            ),
+          ),
+          const SizedBox(width: 16),
+        ],
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
             
             if (!_isLoadingLimitInfo) ...[
               Padding(
