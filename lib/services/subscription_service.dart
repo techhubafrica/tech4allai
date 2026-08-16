@@ -32,7 +32,79 @@ class SubscriptionService {
           .maybeSingle();
 
       if (response != null) {
-        return response;
+        final now = DateTime.now().toUtc();
+        final todayUtcDate = DateTime.utc(now.year, now.month, now.day);
+        
+        bool needsUpdate = false;
+        final Map<String, dynamic> updatedData = Map<String, dynamic>.from(response);
+
+        // Check text requests reset
+        if (response['last_text_request_at'] != null) {
+          final lastTextTime = DateTime.parse(response['last_text_request_at']).toUtc();
+          final lastTextDate = DateTime.utc(lastTextTime.year, lastTextTime.month, lastTextTime.day);
+          if (todayUtcDate.isAfter(lastTextDate)) {
+            updatedData['text_requests_today'] = 0;
+            needsUpdate = true;
+          }
+        }
+
+        // Check image requests reset
+        if (response['last_image_request_at'] != null) {
+          final lastImageTime = DateTime.parse(response['last_image_request_at']).toUtc();
+          final lastImageDate = DateTime.utc(lastImageTime.year, lastImageTime.month, lastImageTime.day);
+          if (todayUtcDate.isAfter(lastImageDate)) {
+            updatedData['images_today'] = 0;
+            needsUpdate = true;
+          }
+        }
+
+        // Check headshot requests reset
+        if (response['last_headshot_request_at'] != null) {
+          final lastHeadshotTime = DateTime.parse(response['last_headshot_request_at']).toUtc();
+          final lastHeadshotDate = DateTime.utc(lastHeadshotTime.year, lastHeadshotTime.month, lastHeadshotTime.day);
+          if (todayUtcDate.isAfter(lastHeadshotDate)) {
+            updatedData['headshots_today'] = 0;
+            needsUpdate = true;
+          }
+        }
+
+        // Check monthly reset
+        if (response['subscription_reset_at'] != null) {
+          final resetTime = DateTime.parse(response['subscription_reset_at']).toUtc();
+          if (now.isAfter(resetTime)) {
+            final tier = response['tier'] ?? 'FREE';
+            updatedData['subscription_reset_at'] = now.add(const Duration(days: 30)).toIso8601String();
+            updatedData['images_this_month'] = 0;
+            updatedData['headshots_this_month'] = 0;
+            if (tier == 'BASIC') {
+              updatedData['credits'] = 5.0000;
+            } else if (tier == 'PRO') {
+              updatedData['credits'] = 10.0000;
+            } else {
+              updatedData['credits'] = 0.0000;
+            }
+            needsUpdate = true;
+          }
+        }
+
+        if (needsUpdate) {
+          try {
+            await _supabase.from('user_subscriptions').update({
+              'text_requests_today': updatedData['text_requests_today'],
+              'images_today': updatedData['images_today'],
+              'headshots_today': updatedData['headshots_today'],
+              'images_this_month': updatedData['images_this_month'] ?? response['images_this_month'],
+              'headshots_this_month': updatedData['headshots_this_month'] ?? response['headshots_this_month'],
+              'credits': updatedData['credits'] ?? response['credits'],
+              'subscription_reset_at': updatedData['subscription_reset_at'] ?? response['subscription_reset_at'],
+            }).eq('id', userId);
+            print('Automatically reset daily/monthly counters for new cycle in database.');
+          } catch (dbErr) {
+            print('Error writing daily counters reset to DB: $dbErr');
+          }
+        }
+
+        return updatedData;
       } else {
         // Automatically provision if record doesn't exist
         return await ensureSubscriptionExists(userId);
