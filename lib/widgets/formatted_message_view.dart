@@ -14,6 +14,28 @@ class FormattedMessageView extends StatefulWidget {
 
 class _FormattedMessageViewState extends State<FormattedMessageView> {
   bool _isThinkingExpanded = false;
+  bool _isCopied = false;
+
+  void _copyFullResponse(String textToCopy) {
+    Clipboard.setData(ClipboardData(text: textToCopy));
+    setState(() {
+      _isCopied = true;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Full response copied to clipboard!'),
+        duration: Duration(seconds: 2),
+        backgroundColor: Color(0xFFFF6F00),
+      ),
+    );
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        setState(() {
+          _isCopied = false;
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -107,7 +129,7 @@ class _FormattedMessageViewState extends State<FormattedMessageView> {
         ],
 
         // Main Response (rendered using MarkdownBody)
-        if (mainResponseContent.isNotEmpty)
+        if (mainResponseContent.isNotEmpty) ...[
           MarkdownBody(
             data: mainResponseContent,
             selectable: true,
@@ -172,6 +194,44 @@ class _FormattedMessageViewState extends State<FormattedMessageView> {
               'code': CodeBlockBuilder(),
             },
           ),
+          const SizedBox(height: 10),
+          Align(
+            alignment: Alignment.centerRight,
+            child: InkWell(
+              onTap: () => _copyFullResponse(mainResponseContent),
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: surfaceColor.withOpacity(0.6),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: _isCopied ? Colors.greenAccent.withOpacity(0.5) : borderColor,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      _isCopied ? Icons.check_circle_outline : Icons.copy_all_rounded,
+                      size: 14,
+                      color: _isCopied ? Colors.greenAccent : primaryColor,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      _isCopied ? 'Copied Full Response' : 'Copy Full Response',
+                      style: GoogleFonts.inter(
+                        color: _isCopied ? Colors.greenAccent : textMutedColor,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }
