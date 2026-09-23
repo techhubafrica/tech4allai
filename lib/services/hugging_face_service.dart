@@ -243,6 +243,50 @@ class HuggingFaceService {
      return null;
   }
 
+  /// Generate Code Assistant response tuned for task modes and programming language context
+  Future<String> generateCodeAssistantResponse(
+    String userPrompt, {
+    String? codeSnippet,
+    String mode = 'Write & Generate',
+    String language = 'All Languages',
+  }) async {
+    final langContext = (language != 'All Languages') ? 'Target Language: $language\n' : '';
+
+    String modeInstructions = '';
+    switch (mode) {
+      case 'Debug & Fix':
+        modeInstructions =
+            'You are an expert AI debugging engineer. Analyze the code/error provided, identify the exact root cause, explain the fix clearly, and provide the fully corrected, production-ready code in Markdown code fences.';
+        break;
+      case 'Explain & Document':
+        modeInstructions =
+            'You are a senior code instructor. Provide a clear, structured, step-by-step explanation of how the code works, detailing key data structures, logic flow, and edge cases. Include docstrings/comments.';
+        break;
+      case 'Refactor & Optimize':
+        modeInstructions =
+            'You are a principal software architect. Refactor and optimize the provided code for memory efficiency, execution speed, readability, and modern idioms. Compare key changes.';
+        break;
+      case 'Write & Generate':
+      default:
+        modeInstructions =
+            'You are an expert software developer. Write clean, production-ready, type-safe code based on the instructions. Wrap code blocks in Markdown code fences with syntax language tags.';
+    }
+
+    final codeSection = (codeSnippet != null && codeSnippet.trim().isNotEmpty)
+        ? '\n\nAttached Code Context:\n```$language\n${codeSnippet.trim()}\n```'
+        : '';
+
+    final fullPrompt = '''
+$modeInstructions
+$langContext
+User Request:
+$userPrompt
+$codeSection
+''';
+
+    return await generateText(fullPrompt, modelCode);
+  }
+
   /// Summarize text with customizable modes and length controls, enforcing strict faithfulness
   Future<String> summarizeText(
     String text, {

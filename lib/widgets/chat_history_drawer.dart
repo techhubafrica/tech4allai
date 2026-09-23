@@ -49,6 +49,8 @@ class _ChatHistoryDrawerState extends State<ChatHistoryDrawer> {
       case 'flashcards': return 'Saved Decks';
       case 'image_gen': return 'Generated Images';
       case 'headshots': return 'Pro Headshots';
+      case 'summarizer': return 'Summaries History';
+      case 'code_assistant': return 'Code Sessions';
       default: return 'History';
     }
   }
