@@ -58,181 +58,243 @@ class _FormattedMessageViewState extends State<FormattedMessageView> {
     const borderColor = Color(0xFF3D3228); // AppColors.neutralBorder
     const textMutedColor = Color(0xFF9E9E9E); // AppColors.neutralTextMuted
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Collapsible Thinking Block
-        if (thinkingContent != null && thinkingContent.isNotEmpty) ...[
-          Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            decoration: BoxDecoration(
-              color: surfaceColor.withOpacity(0.5),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: borderColor),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                InkWell(
-                  onTap: () {
-                    setState(() {
-                      _isThinkingExpanded = !_isThinkingExpanded;
-                    });
-                  },
-                  borderRadius: BorderRadius.circular(12),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.psychology_outlined,
-                          color: primaryColor,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            'Thought Process',
-                            style: GoogleFonts.inter(
-                              color: textMutedColor,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
+    return SizedBox(
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Collapsible Thinking Block
+          if (thinkingContent != null && thinkingContent.isNotEmpty) ...[
+            Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: surfaceColor.withOpacity(0.5),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: borderColor),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  InkWell(
+                    onTap: () {
+                      setState(() {
+                        _isThinkingExpanded = !_isThinkingExpanded;
+                      });
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.psychology_outlined,
+                            color: primaryColor,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              'Thought Process',
+                              style: GoogleFonts.inter(
+                                color: textMutedColor,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
-                        ),
-                        Icon(
-                          _isThinkingExpanded ? Icons.expand_less : Icons.expand_more,
-                          color: textMutedColor,
-                          size: 20,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                if (_isThinkingExpanded) ...[
-                  const Divider(color: borderColor, height: 1),
-                  Padding(
-                    padding: const EdgeInsets.all(14),
-                    child: Text(
-                      thinkingContent,
-                      style: GoogleFonts.firaCode(
-                        color: textMutedColor.withOpacity(0.8),
-                        fontSize: 12,
-                        height: 1.5,
+                          Icon(
+                            _isThinkingExpanded ? Icons.expand_less : Icons.expand_more,
+                            color: textMutedColor,
+                            size: 20,
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                ],
-              ],
-            ),
-          ),
-        ],
-
-        // Main Response (rendered using MarkdownBody)
-        if (mainResponseContent.isNotEmpty) ...[
-          MarkdownBody(
-            data: mainResponseContent,
-            selectable: true,
-            styleSheet: MarkdownStyleSheet(
-              p: GoogleFonts.inter(
-                color: Colors.white,
-                fontSize: 15,
-                height: 1.5,
-              ),
-              h1: GoogleFonts.inter(
-                color: Colors.white,
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                height: 1.6,
-              ),
-              h2: GoogleFonts.inter(
-                color: Colors.white,
-                fontSize: 19,
-                fontWeight: FontWeight.bold,
-                height: 1.5,
-              ),
-              h3: GoogleFonts.inter(
-                color: Colors.white,
-                fontSize: 17,
-                fontWeight: FontWeight.bold,
-                height: 1.4,
-              ),
-              strong: GoogleFonts.inter(
-                color: primaryColor,
-                fontWeight: FontWeight.bold,
-              ),
-              em: const TextStyle(
-                fontStyle: FontStyle.italic,
-              ),
-              blockquote: GoogleFonts.inter(
-                color: textMutedColor,
-                fontStyle: FontStyle.italic,
-              ),
-              blockquoteDecoration: BoxDecoration(
-                color: surfaceColor.withOpacity(0.3),
-                border: const Border(
-                  left: BorderSide(color: primaryColor, width: 4),
-                ),
-              ),
-              listBullet: GoogleFonts.inter(
-                color: primaryColor,
-                fontSize: 15,
-              ),
-              code: GoogleFonts.firaCode(
-                color: primaryColor,
-                backgroundColor: surfaceColor,
-                fontSize: 13,
-              ),
-              codeblockPadding: const EdgeInsets.all(12),
-              codeblockDecoration: BoxDecoration(
-                color: surfaceColor,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: borderColor),
-              ),
-            ),
-            builders: {
-              'code': CodeBlockBuilder(),
-            },
-          ),
-          const SizedBox(height: 10),
-          Align(
-            alignment: Alignment.centerRight,
-            child: InkWell(
-              onTap: () => _copyFullResponse(mainResponseContent),
-              borderRadius: BorderRadius.circular(8),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: surfaceColor.withOpacity(0.6),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: _isCopied ? Colors.greenAccent.withOpacity(0.5) : borderColor,
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      _isCopied ? Icons.check_circle_outline : Icons.copy_all_rounded,
-                      size: 14,
-                      color: _isCopied ? Colors.greenAccent : primaryColor,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      _isCopied ? 'Copied Full Response' : 'Copy Full Response',
-                      style: GoogleFonts.inter(
-                        color: _isCopied ? Colors.greenAccent : textMutedColor,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
+                  if (_isThinkingExpanded) ...[
+                    const Divider(color: borderColor, height: 1),
+                    Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: Text(
+                        thinkingContent,
+                        style: GoogleFonts.firaCode(
+                          color: textMutedColor.withOpacity(0.8),
+                          fontSize: 12,
+                          height: 1.5,
+                        ),
                       ),
                     ),
                   ],
-                ),
+                ],
               ),
             ),
-          ),
+          ],
+
+          // Main Response (rendered using MarkdownBody)
+          if (mainResponseContent.isNotEmpty) ...[
+            MarkdownBody(
+              data: mainResponseContent,
+              selectable: true,
+              styleSheet: MarkdownStyleSheet(
+                p: GoogleFonts.inter(
+                  color: Colors.white,
+                  fontSize: 15,
+                  height: 1.5,
+                ),
+                h1: GoogleFonts.inter(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  height: 1.6,
+                ),
+                h2: GoogleFonts.inter(
+                  color: Colors.white,
+                  fontSize: 19,
+                  fontWeight: FontWeight.bold,
+                  height: 1.5,
+                ),
+                h3: GoogleFonts.inter(
+                  color: Colors.white,
+                  fontSize: 17,
+                  fontWeight: FontWeight.bold,
+                  height: 1.4,
+                ),
+                strong: GoogleFonts.inter(
+                  color: primaryColor,
+                  fontWeight: FontWeight.bold,
+                ),
+                em: const TextStyle(
+                  fontStyle: FontStyle.italic,
+                ),
+                blockquote: GoogleFonts.inter(
+                  color: textMutedColor,
+                  fontStyle: FontStyle.italic,
+                ),
+                blockquoteDecoration: BoxDecoration(
+                  color: surfaceColor.withOpacity(0.3),
+                  border: const Border(
+                    left: BorderSide(color: primaryColor, width: 4),
+                  ),
+                ),
+                listBullet: GoogleFonts.inter(
+                  color: primaryColor,
+                  fontSize: 15,
+                ),
+                code: GoogleFonts.firaCode(
+                  color: primaryColor,
+                  backgroundColor: surfaceColor,
+                  fontSize: 13,
+                ),
+                codeblockPadding: const EdgeInsets.all(12),
+                codeblockDecoration: BoxDecoration(
+                  color: surfaceColor,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: borderColor),
+                ),
+              ),
+              builders: {
+                'code': CodeBlockBuilder(),
+              },
+            ),
+            const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.centerRight,
+              child: CopyResponseButton(
+                textToCopy: mainResponseContent,
+                label: 'Copy Full Response',
+              ),
+            ),
+          ],
         ],
-      ],
+      ),
+    );
+  }
+}
+
+/// Standalone, reusable high-visibility copy button widget
+class CopyResponseButton extends StatefulWidget {
+  final String textToCopy;
+  final String label;
+
+  const CopyResponseButton({
+    super.key,
+    required this.textToCopy,
+    this.label = 'Copy Full Response',
+  });
+
+  @override
+  State<CopyResponseButton> createState() => _CopyResponseButtonState();
+}
+
+class _CopyResponseButtonState extends State<CopyResponseButton> {
+  bool _isCopied = false;
+
+  void _copy() {
+    final thinkRegex = RegExp(r'<think>([\s\S]*?)(?:</think>|$)');
+    final cleanText = widget.textToCopy.replaceAll(thinkRegex, '').trim();
+
+    Clipboard.setData(ClipboardData(text: cleanText));
+    setState(() => _isCopied = true);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Full response copied to clipboard!'),
+        duration: Duration(seconds: 2),
+        backgroundColor: Color(0xFFFF6F00),
+      ),
+    );
+
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        setState(() => _isCopied = false);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: _copy,
+      borderRadius: BorderRadius.circular(8),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: _isCopied ? Colors.green.withOpacity(0.2) : const Color(0xFF2D241D),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: _isCopied ? Colors.greenAccent : const Color(0xFFFF6F00).withOpacity(0.8),
+            width: 1.2,
+          ),
+          boxShadow: [
+            if (!_isCopied)
+              BoxShadow(
+                color: const Color(0xFFFF6F00).withOpacity(0.15),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              _isCopied ? Icons.check_circle_rounded : Icons.copy_all_rounded,
+              size: 15,
+              color: _isCopied ? Colors.greenAccent : const Color(0xFFFF6F00),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              _isCopied ? 'Copied!' : widget.label,
+              style: GoogleFonts.inter(
+                color: _isCopied ? Colors.greenAccent : Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -473,18 +473,33 @@ class _CodeAssistantScreenState extends State<CodeAssistantScreen> {
                                 color: isUser ? AppColors.neutralBorder : Colors.cyanAccent.withOpacity(0.3),
                               ),
                             ),
-                            child: isUser
-                                ? Text(
-                                    msg['message'] ?? '',
-                                    style: GoogleFonts.sourceCodePro(
-                                      color: Colors.white,
-                                      fontSize: 13,
-                                      height: 1.5,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                isUser
+                                    ? SelectableText(
+                                        msg['message'] ?? '',
+                                        style: GoogleFonts.sourceCodePro(
+                                          color: Colors.white,
+                                          fontSize: 13,
+                                          height: 1.5,
+                                        ),
+                                      )
+                                    : FormattedMessageView(
+                                        text: msg['message'] ?? '',
+                                      ),
+                                if (isUser) ...[
+                                  const SizedBox(height: 10),
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: CopyResponseButton(
+                                      textToCopy: (msg['message'] ?? '') as String,
+                                      label: 'Copy Prompt',
                                     ),
-                                  )
-                                : FormattedMessageView(
-                                    text: msg['message'] ?? '',
                                   ),
+                                ],
+                              ],
+                            ),
                           ),
                         ),
                       ],
