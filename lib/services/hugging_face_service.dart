@@ -243,10 +243,69 @@ class HuggingFaceService {
      return null;
   }
 
-  /// Summarize text (Uses Chat API via Router)
-  Future<String> summarizeText(String text) async {
-    final prompt = "Please summarize the following text concisely:\n\n$text";
+  /// Summarize text with customizable modes and length controls
+  Future<String> summarizeText(
+    String text, {
+    String mode = 'Executive Summary',
+    String length = 'Medium',
+    String customPrompt = '',
+  }) async {
+    String modeInstructions = '';
+    switch (mode) {
+      case 'Executive Summary':
+        modeInstructions = 'Provide a concise executive summary starting with 3 to 5 high-impact key bullet points followed by a single clear bottom line conclusion.';
+        break;
+      case 'Comprehensive Breakdown':
+        modeInstructions = 'Provide a thorough, structured, section-by-section breakdown of the text using clear Markdown subheadings, key insights, and detailed bullet points.';
+        break;
+      case 'Action Items & Decisions':
+        modeInstructions = 'Extract all actionable tasks, key dates, deadlines, decisions, and critical requirements from the text into clear Markdown checklists and bullet points.';
+        break;
+      case 'Custom Focus':
+        modeInstructions = customPrompt.isNotEmpty ? customPrompt : 'Summarize key points.';
+        break;
+      default:
+        modeInstructions = 'Provide a clean, structured summary highlighting key concepts and takeaways.';
+    }
+
+    String lengthInstruction = '';
+    switch (length) {
+      case 'Short':
+        lengthInstruction = 'Keep the summary brief and high-level (under 150 words).';
+        break;
+      case 'Detailed':
+        lengthInstruction = 'Provide an in-depth, thorough analysis covering all nuances and essential details.';
+        break;
+      case 'Medium':
+      default:
+        lengthInstruction = 'Provide a balanced, medium-length summary with key takeaways.';
+    }
+
+    final prompt = '''
+You are an expert AI Summarizer.
+Format guidelines: $modeInstructions $lengthInstruction
+
+Document Content:
+"""
+$text
+"""
+''';
+
     return await generateText(prompt, modelChat);
+  }
+
+  /// Summarize image document or scanned notes (Uses Groq Multimodal Vision Model)
+  Future<String> summarizeVisionDocument(
+    String base64ImageUrl, {
+    String promptHint = '',
+    String mode = 'Executive Summary',
+    String length = 'Medium',
+  }) async {
+    final userText = promptHint.isNotEmpty
+        ? 'Extract all text from this scanned image/document and summarize it according to these instructions: $promptHint'
+        : 'Extract all text from this scanned image/document and provide a structured $mode ($length length) highlighting key concepts.';
+
+    return await generateVisionText(userText, base64ImageUrl);
   }
 
   /// Detect AI content (Uses Chat API via Router)
