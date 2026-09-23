@@ -163,8 +163,6 @@ class _PricingScreenState extends State<PricingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDesktop = MediaQuery.of(context).size.width > 900;
-
     return Scaffold(
       backgroundColor: AppColors.backgroundDark,
       appBar: AppBar(
@@ -250,124 +248,136 @@ class _PricingScreenState extends State<PricingScreen> {
                   ),
                   const SizedBox(height: 32),
 
-                  // Pricing Cards Layout
-                  if (isDesktop)
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(child: _buildPricingCard(
-                          title: 'FREE',
-                          price: '0 GHS',
-                          period: 'forever',
-                          features: [
-                            '5 Text requests / day',
-                            'Normal text models only',
-                            'No Sonder 0.1 Pro access',
-                            '5 Schnell images / day',
-                            '2 Headshots / day (Lora model)',
-                            '25 images & 15 headshots max / month',
+                  // Pricing Cards Layout: Uses LayoutBuilder to check actual container width
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final isWide = constraints.maxWidth > 750;
+                      if (isWide) {
+                        return Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: _buildPricingCard(
+                                title: 'FREE',
+                                price: '0 GHS',
+                                period: 'forever',
+                                features: [
+                                  '5 Text requests / day',
+                                  'Normal text models only',
+                                  'No Sonder 0.1 Pro access',
+                                  '5 Schnell images / day',
+                                  '2 Headshots / day (Lora model)',
+                                  '25 images & 15 headshots max / month',
+                                ],
+                                isPopular: false,
+                                buttonText: _currentTier == 'FREE' ? 'Active Plan' : 'Free Tier',
+                                onTap: () {},
+                                isEnabled: false,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: _buildPricingCard(
+                                title: 'BASIC',
+                                price: '100 GHS',
+                                period: 'monthly',
+                                features: [
+                                  '50 Text requests / day',
+                                  'Access to Sonder 0.1 Pro models',
+                                  '\$5 USD image/headshot credits',
+                                  'Credits reset monthly',
+                                  'Cost deducted dynamically per image',
+                                  'No rollover of credits',
+                                ],
+                                isPopular: true,
+                                buttonText: _currentTier == 'BASIC' ? 'Active' : 'Upgrade Basic',
+                                onTap: () => _handleUpgrade('BASIC', 100.0),
+                                isEnabled: _currentTier != 'BASIC',
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: _buildPricingCard(
+                                title: 'PRO',
+                                price: '250 GHS',
+                                period: 'monthly',
+                                features: [
+                                  '150 Text requests / day',
+                                  'Access to Sonder 0.1 Pro models',
+                                  '\$10 USD image/headshot credits',
+                                  'Credits reset monthly',
+                                  'Cost deducted dynamically per image',
+                                  'Ideal for high-volume content creators',
+                                ],
+                                isPopular: false,
+                                buttonText: _currentTier == 'PRO' ? 'Active' : 'Upgrade Pro',
+                                onTap: () => _handleUpgrade('PRO', 250.0),
+                                isEnabled: _currentTier != 'PRO',
+                              ),
+                            ),
                           ],
-                          isPopular: false,
-                          buttonText: _currentTier == 'FREE' ? 'Active Plan' : 'Free Tier',
-                          onTap: () {},
-                          isEnabled: false,
-                        )),
-                        const SizedBox(width: 16),
-                        Expanded(child: _buildPricingCard(
-                          title: 'BASIC',
-                          price: '100 GHS',
-                          period: 'monthly',
-                          features: [
-                            '50 Text requests / day',
-                            'Access to Sonder 0.1 Pro models',
-                            '\$5 USD image/headshot credits',
-                            'Credits reset monthly',
-                            'Cost deducted dynamically per image',
-                            'No rollover of credits',
+                        );
+                      } else {
+                        return Column(
+                          children: [
+                            _buildPricingCard(
+                              title: 'FREE',
+                              price: '0 GHS',
+                              period: 'forever',
+                              features: [
+                                '5 Text requests / day',
+                                'Normal text models only',
+                                'No Sonder 0.1 Pro access',
+                                '5 Schnell images / day',
+                                '2 Headshots / day (Lora model)',
+                                '25 images & 15 headshots max / month',
+                              ],
+                              isPopular: false,
+                              buttonText: _currentTier == 'FREE' ? 'Active Plan' : 'Free Tier',
+                              onTap: () {},
+                              isEnabled: false,
+                            ),
+                            const SizedBox(height: 24),
+                            _buildPricingCard(
+                              title: 'BASIC',
+                              price: '100 GHS',
+                              period: 'monthly',
+                              features: [
+                                '50 Text requests / day',
+                                'Access to Sonder 0.1 Pro models',
+                                '\$5 USD image/headshot credits',
+                                'Credits reset monthly',
+                                'Cost deducted dynamically per image',
+                                'No rollover of credits',
+                              ],
+                              isPopular: true,
+                              buttonText: _currentTier == 'BASIC' ? 'Active' : 'Upgrade Basic',
+                              onTap: () => _handleUpgrade('BASIC', 100.0),
+                              isEnabled: _currentTier != 'BASIC',
+                            ),
+                            const SizedBox(height: 24),
+                            _buildPricingCard(
+                              title: 'PRO',
+                              price: '250 GHS',
+                              period: 'monthly',
+                              features: [
+                                '150 Text requests / day',
+                                'Access to Sonder 0.1 Pro models',
+                                '\$10 USD image/headshot credits',
+                                'Credits reset monthly',
+                                'Cost deducted dynamically per image',
+                                'Ideal for high-volume content creators',
+                              ],
+                              isPopular: false,
+                              buttonText: _currentTier == 'PRO' ? 'Active' : 'Upgrade Pro',
+                              onTap: () => _handleUpgrade('PRO', 250.0),
+                              isEnabled: _currentTier != 'PRO',
+                            ),
                           ],
-                          isPopular: true,
-                          buttonText: _currentTier == 'BASIC' ? 'Active' : 'Upgrade Basic',
-                          onTap: () => _handleUpgrade('BASIC', 100.0),
-                          isEnabled: _currentTier != 'BASIC',
-                        )),
-                        const SizedBox(width: 16),
-                        Expanded(child: _buildPricingCard(
-                          title: 'PRO',
-                          price: '250 GHS',
-                          period: 'monthly',
-                          features: [
-                            '150 Text requests / day',
-                            'Access to Sonder 0.1 Pro models',
-                            '\$10 USD image/headshot credits',
-                            'Credits reset monthly',
-                            'Cost deducted dynamically per image',
-                            'Ideal for high-volume content creators',
-                          ],
-                          isPopular: false,
-                          buttonText: _currentTier == 'PRO' ? 'Active' : 'Upgrade Pro',
-                          onTap: () => _handleUpgrade('PRO', 250.0),
-                          isEnabled: _currentTier != 'PRO',
-                        )),
-                      ],
-                    )
-                  else
-                    Column(
-                      children: [
-                        _buildPricingCard(
-                          title: 'FREE',
-                          price: '0 GHS',
-                          period: 'forever',
-                          features: [
-                            '5 Text requests / day',
-                            'Normal text models only',
-                            'No Sonder 0.1 Pro access',
-                            '5 Schnell images / day',
-                            '2 Headshots / day (Lora model)',
-                            '25 images & 15 headshots max / month',
-                          ],
-                          isPopular: false,
-                          buttonText: _currentTier == 'FREE' ? 'Active Plan' : 'Free Tier',
-                          onTap: () {},
-                          isEnabled: false,
-                        ),
-                        const SizedBox(height: 24),
-                        _buildPricingCard(
-                          title: 'BASIC',
-                          price: '100 GHS',
-                          period: 'monthly',
-                          features: [
-                            '50 Text requests / day',
-                            'Access to Sonder 0.1 Pro models',
-                            '\$5 USD image/headshot credits',
-                            'Credits reset monthly',
-                            'Cost deducted dynamically per image',
-                            'No rollover of credits',
-                          ],
-                          isPopular: true,
-                          buttonText: _currentTier == 'BASIC' ? 'Active' : 'Upgrade Basic',
-                          onTap: () => _handleUpgrade('BASIC', 100.0),
-                          isEnabled: _currentTier != 'BASIC',
-                        ),
-                        const SizedBox(height: 24),
-                        _buildPricingCard(
-                          title: 'PRO',
-                          price: '250 GHS',
-                          period: 'monthly',
-                          features: [
-                            '150 Text requests / day',
-                            'Access to Sonder 0.1 Pro models',
-                            '\$10 USD image/headshot credits',
-                            'Credits reset monthly',
-                            'Cost deducted dynamically per image',
-                            'Ideal for high-volume content creators',
-                          ],
-                          isPopular: false,
-                          buttonText: _currentTier == 'PRO' ? 'Active' : 'Upgrade Pro',
-                          onTap: () => _handleUpgrade('PRO', 250.0),
-                          isEnabled: _currentTier != 'PRO',
-                        ),
-                      ],
-                    ),
+                        );
+                      }
+                    },
+                  ),
                 ],
               ),
             ),
@@ -409,17 +419,22 @@ class _PricingScreenState extends State<PricingScreen> {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
-                title,
-                style: GoogleFonts.inter(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2,
-                  color: isPopular ? AppColors.primary : Colors.white,
+              Flexible(
+                child: Text(
+                  title,
+                  style: GoogleFonts.inter(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                    color: isPopular ? AppColors.primary : Colors.white,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              if (isPopular)
+              if (isPopular) ...[
+                const SizedBox(width: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
@@ -434,7 +449,8 @@ class _PricingScreenState extends State<PricingScreen> {
                       color: AppColors.primary,
                     ),
                   ),
-                )
+                ),
+              ],
             ],
           ),
           const SizedBox(height: 16),
@@ -442,15 +458,17 @@ class _PricingScreenState extends State<PricingScreen> {
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              Text(
-                price,
-                style: GoogleFonts.inter(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+              Flexible(
+                child: Text(
+                  price,
+                  style: GoogleFonts.inter(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
               ),
-              const SizedBox(width: 4),
+              const SizedBox(width: 6),
               Text(
                 '/ $period',
                 style: GoogleFonts.inter(color: AppColors.neutralTextMuted, fontSize: 14),
