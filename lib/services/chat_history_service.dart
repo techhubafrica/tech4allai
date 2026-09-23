@@ -15,7 +15,14 @@ class ChatHistoryService {
   /// Fetch all sessions for a specific feature type
   Future<List<Map<String, dynamic>>> getSessions(String featureType) async {
     final uid = _userId;
-    if (uid == null) return [];
+    if (uid == null) {
+      final prefs = await SharedPreferences.getInstance();
+      final cachedStr = prefs.getString('cached_sessions_$featureType');
+      if (cachedStr != null) {
+        return List<Map<String, dynamic>>.from(jsonDecode(cachedStr));
+      }
+      return [];
+    }
 
     try {
       final response = await _supabase
@@ -25,16 +32,25 @@ class ChatHistoryService {
           .eq('feature_type', featureType)
           .order('updated_at', ascending: false);
 
-      final List<Map<String, dynamic>> sessions = List<Map<String, dynamic>>.from(response);
+      List<Map<String, dynamic>> sessions = List<Map<String, dynamic>>.from(response);
       
-      // Cache locally
+      // Include any local fallback sessions that were created offline or before sync
       final prefs = await SharedPreferences.getInstance();
+      final cachedStr = prefs.getString('cached_sessions_$featureType');
+      if (cachedStr != null) {
+        final List<dynamic> localList = jsonDecode(cachedStr);
+        final localSessions = localList.where((s) => (s['id'] as String).startsWith('local_')).toList();
+        for (final loc in localSessions) {
+          if (!sessions.any((s) => s['id'] == loc['id'])) {
+            sessions.insert(0, Map<String, dynamic>.from(loc));
+          }
+        }
+      }
+
       await prefs.setString('cached_sessions_$featureType', jsonEncode(sessions));
-      
       return sessions;
     } catch (e) {
       print('Error getting chat sessions: $e. Loading local cache.');
-      // Load local cache fallback
       final prefs = await SharedPreferences.getInstance();
       final cachedStr = prefs.getString('cached_sessions_$featureType');
       if (cachedStr != null) {
@@ -47,9 +63,28 @@ class ChatHistoryService {
   /// Create a new chat session
   Future<Map<String, dynamic>> createSession(String featureType, {String? initialTitle}) async {
     final uid = _userId;
-    if (uid == null) throw Exception('User not authenticated');
-
     final title = initialTitle ?? 'New Conversation';
+
+    if (uid == null) {
+      // Local session for guest/unauthenticated user
+      final tempId = 'local_${DateTime.now().millisecondsSinceEpoch}';
+      final newSession = {
+        'id': tempId,
+        'user_id': 'guest',
+        'feature_type': featureType,
+        'title': title,
+        'created_at': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
+      };
+      
+      final prefs = await SharedPreferences.getInstance();
+      final cachedStr = prefs.getString('cached_sessions_$featureType');
+      List<dynamic> list = cachedStr != null ? jsonDecode(cachedStr) : [];
+      list.insert(0, newSession);
+      await prefs.setString('cached_sessions_$featureType', jsonEncode(list));
+      
+      return newSession;
+    }
 
     try {
       final response = await _supabase
@@ -62,10 +97,17 @@ class ChatHistoryService {
           .select()
           .single();
 
-      return Map<String, dynamic>.from(response);
+      final newSession = Map<String, dynamic>.from(response);
+
+      final prefs = await SharedPreferences.getInstance();
+      final cachedStr = prefs.getString('cached_sessions_$featureType');
+      List<dynamic> list = cachedStr != null ? jsonDecode(cachedStr) : [];
+      list.insert(0, newSession);
+      await prefs.setString('cached_sessions_$featureType', jsonEncode(list));
+
+      return newSession;
     } catch (e) {
       print('Error creating chat session in DB: $e. Creating local fallback session.');
-      // Fallback local session for offline/testing
       final tempId = 'local_${DateTime.now().millisecondsSinceEpoch}';
       final newSession = {
         'id': tempId,
@@ -204,7 +246,7 @@ class ChatHistoryService {
     if (sessionId.startsWith('local_')) {
       final prefs = await SharedPreferences.getInstance();
       // Try to find in all cache types
-      final featureTypes = ['main_chat', 'study_assistant', 'flashcards', 'image_gen', 'headshots'];
+      final featureTypes = ['main_chat', 'study_assistant', 'flashcards', 'image_gen', 'headshots', 'summarizer'];
       for (final type in featureTypes) {
         final cachedStr = prefs.getString('cached_sessions_$type');
         if (cachedStr != null) {
