@@ -87,10 +87,9 @@ class _CodeAssistantScreenState extends State<CodeAssistantScreen> {
         elevation: 0,
         centerTitle: true,
       ),
-      body: UnderDevelopmentOverlay(
-        child: SafeArea(
-          child: Column(
-            children: [
+      body: SafeArea(
+        child: Column(
+          children: [
             // Chat Area
             Expanded(
               child: ListView.builder(
@@ -171,7 +170,6 @@ class _CodeAssistantScreenState extends State<CodeAssistantScreen> {
             ),
           ],
         ),
-       ),
       ),
     );
   }
