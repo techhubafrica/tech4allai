@@ -108013,20 +108013,20 @@ return A.r($async$pc,r)},
 Aj(a,b,c,d){return this.a8d(a,b,c,d)},
 a8d(a,b,c,d){var s=0,r=A.t(t.N),q,p=this,o,n
 var $async$Aj=A.o(function(e,f){if(e===1)return A.p(f,r)
-for(;;)switch(s){case 0:switch(d){case"Executive Summary":o="Provide a concise executive summary starting with 3 to 5 high-impact key bullet points followed by a single clear bottom line conclusion."
+for(;;)switch(s){case 0:switch(d){case"Executive Summary":o='Provide a faithful executive summary starting with 3 to 5 key bullet points strictly supported by the source, followed by a single "Bottom Line" section that synthesizes the source text without introducing new conclusions.'
 break
-case"Comprehensive Breakdown":o="Provide a thorough, structured, section-by-section breakdown of the text using clear Markdown subheadings, key insights, and detailed bullet points."
+case"Comprehensive Breakdown":o="Provide a structured, section-by-section breakdown of the text using clear Markdown subheadings and detailed bullet points, strictly preserving the original meaning, context, and nuance of the source."
 break
-case"Action Items & Decisions":o="Extract all actionable tasks, key dates, deadlines, decisions, and critical requirements from the text into clear Markdown checklists and bullet points."
+case"Action Items & Decisions":o="Extract all explicitly stated actionable tasks, key dates, deadlines, decisions, and requirements from the text into clear Markdown checklists and bullet points. Clearly distinguish between proposed actions and approved/completed decisions."
 break
-case"Custom Focus":o=b.length!==0?b:"Summarize key points."
+case"Custom Focus":o=b.length!==0?'Summarize the text according to these custom instructions: "'+b+'". Ensure all statements remain strictly supported by the source.':"Summarize key points with strict adherence to the source."
 break
-default:o="Provide a clean, structured summary highlighting key concepts and takeaways."}switch(c){case"Short":n="Keep the summary brief and high-level (under 150 words)."
+default:o="Provide a clean, structured summary highlighting key concepts and takeaways strictly supported by the source."}switch(c){case"Short":n="Keep the summary brief and high-level (under 150 words) while maintaining full factual accuracy."
 break
-case"Detailed":n="Provide an in-depth, thorough analysis covering all nuances and essential details."
+case"Detailed":n="Provide an in-depth summary covering all essential details, context, and nuances without introducing any unstated information."
 break
-case"Medium":default:n="Provide a balanced, medium-length summary with key takeaways."}s=3
-return A.k(p.mb("You are an expert AI Summarizer.\nFormat guidelines: "+o+" "+n+'\n\nDocument Content:\n"""\n'+a+'\n"""\n',"openai/gpt-oss-120b"),$async$Aj)
+case"Medium":default:n="Provide a balanced, medium-length summary covering major takeaways."}s=3
+return A.k(p.mb('You are an expert AI Summarizer. Your HIGHEST PRIORITY is absolute faithfulness and factual accuracy to the source text.\n\nPRIORITY ORDER:\n1. Factual accuracy (Highest priority - never introduce unsupported claims)\n2. Faithfulness to source\n3. Coverage of important points\n4. Conciseness\n5. Writing style\n\nSTRICT ANTI-HALLUCINATION & FAITHFULNESS RULES:\n1. DO NOT INVENT: Do not invent numerical targets, percentages, expected outcomes, predictions, motivations, causes, conclusions, recommendations, timelines, or relationships between facts unless explicitly stated in the source text.\n2. NEVER STRENGTHEN WORDING: Do not upgrade tentative phrasing. (Example: If source says "may improve performance", summarize as "may improve performance", NEVER "will significantly improve performance").\n3. PRESERVE UNCERTAINTY: Words such as "may", "might", "could", "approximately", "likely", "considered", "proposed", "expected" must NEVER be converted into definite or guaranteed statements.\n4. DO NOT SPECIFY GENERAL GOALS: Do not convert general goals into specific targets. (Example: If source says "reduce delivery delays", summarize as "aims to reduce delivery delays", NEVER "aims to halve delivery delays").\n5. ACCURATE NUMBERS: Keep all numbers exact. Do not round unnecessarily, do not calculate unstated percentages, do not infer unstated trends, and do not derive targets from statistics.\n6. CLEAR DISTINCTION: Clearly distinguish between facts, proposals, decisions, concerns, expected outcomes, and confirmed results. (Example: A proposed action must never be summarized as if it has already happened).\n7. STRICT BOTTOM LINE: The "Bottom line" or conclusion section must strictly synthesize facts from the source, without introducing new conclusions or external inferences.\n8. NEUTRAL LANGUAGE: Avoid sensational words ("dramatically", "massive", "disastrous", "guaranteed", "revolutionary") unless explicitly supported by the source.\n9. INTERNAL FACTUAL CONSISTENCY PASS: Before returning your response, verify every statement against the source text: "Can this statement be directly supported by the source?" If not, remove or rewrite it more conservatively.\n10. PRESERVE MAJOR INFORMATION: Retain main issues, major causes, key numbers, decisions, recommendations, risks, trade-offs, outcomes, and deadlines even when shortening.\n11. NO POLISH AT THE EXPENSE OF ACCURACY: Do not sacrifice factual accuracy for a more polished or persuasive summary.\n12. NEUTRAL GAPS: When the source does not provide enough information to make a conclusion, state facts neutrally without filling gaps with assumptions.\n\nFORMAT INSTRUCTIONS:\n'+o+" "+n+'\n\nSOURCE TEXT:\n"""\n'+a+'\n"""\n',"openai/gpt-oss-120b"),$async$Aj)
 case 3:q=f
 s=1
 break
@@ -108036,7 +108036,7 @@ Ak(a,b,c,d){return this.a8e(a,b,c,d)},
 a8e(a,b,c,d){var s=0,r=A.t(t.N),q,p=this
 var $async$Ak=A.o(function(e,f){if(e===1)return A.p(f,r)
 for(;;)switch(s){case 0:s=3
-return A.k(p.pc(d.length!==0?"Extract all text from this scanned image/document and summarize it according to these instructions: "+d:"Extract all text from this scanned image/document and provide a structured "+c+" ("+b+" length) highlighting key concepts.",a),$async$Ak)
+return A.k(p.pc('Extract all visible text from this scanned document/image and provide a faithful summary.\n\nPRIORITY ORDER:\n1. Factual accuracy (Highest priority)\n2. Faithfulness to source\n3. Coverage of important points\n4. Conciseness\n\nSTRICT RULES:\n- Only include information explicitly stated in the document or direct, unavoidable paraphrases.\n- Do not invent numbers, targets, predictions, causes, or outcomes.\n- Preserve uncertainty words ("may", "might", "could", "proposed", "expected").\n- Distinguish clearly between proposed actions and confirmed results.\n- Keep all numbers, metrics, and dates exact.\n\n'+(d.length!==0?"Custom Instruction: "+d:"Mode: "+c+" ("+b+" length)")+"\n",a),$async$Ak)
 case 3:q=f
 s=1
 break

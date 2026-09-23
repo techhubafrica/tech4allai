@@ -243,7 +243,7 @@ class HuggingFaceService {
      return null;
   }
 
-  /// Summarize text with customizable modes and length controls
+  /// Summarize text with customizable modes and length controls, enforcing strict faithfulness
   Future<String> summarizeText(
     String text, {
     String mode = 'Executive Summary',
@@ -253,39 +253,64 @@ class HuggingFaceService {
     String modeInstructions = '';
     switch (mode) {
       case 'Executive Summary':
-        modeInstructions = 'Provide a concise executive summary starting with 3 to 5 high-impact key bullet points followed by a single clear bottom line conclusion.';
+        modeInstructions = 'Provide a faithful executive summary starting with 3 to 5 key bullet points strictly supported by the source, followed by a single "Bottom Line" section that synthesizes the source text without introducing new conclusions.';
         break;
       case 'Comprehensive Breakdown':
-        modeInstructions = 'Provide a thorough, structured, section-by-section breakdown of the text using clear Markdown subheadings, key insights, and detailed bullet points.';
+        modeInstructions = 'Provide a structured, section-by-section breakdown of the text using clear Markdown subheadings and detailed bullet points, strictly preserving the original meaning, context, and nuance of the source.';
         break;
       case 'Action Items & Decisions':
-        modeInstructions = 'Extract all actionable tasks, key dates, deadlines, decisions, and critical requirements from the text into clear Markdown checklists and bullet points.';
+        modeInstructions = 'Extract all explicitly stated actionable tasks, key dates, deadlines, decisions, and requirements from the text into clear Markdown checklists and bullet points. Clearly distinguish between proposed actions and approved/completed decisions.';
         break;
       case 'Custom Focus':
-        modeInstructions = customPrompt.isNotEmpty ? customPrompt : 'Summarize key points.';
+        modeInstructions = customPrompt.isNotEmpty 
+            ? 'Summarize the text according to these custom instructions: "$customPrompt". Ensure all statements remain strictly supported by the source.' 
+            : 'Summarize key points with strict adherence to the source.';
         break;
       default:
-        modeInstructions = 'Provide a clean, structured summary highlighting key concepts and takeaways.';
+        modeInstructions = 'Provide a clean, structured summary highlighting key concepts and takeaways strictly supported by the source.';
     }
 
     String lengthInstruction = '';
     switch (length) {
       case 'Short':
-        lengthInstruction = 'Keep the summary brief and high-level (under 150 words).';
+        lengthInstruction = 'Keep the summary brief and high-level (under 150 words) while maintaining full factual accuracy.';
         break;
       case 'Detailed':
-        lengthInstruction = 'Provide an in-depth, thorough analysis covering all nuances and essential details.';
+        lengthInstruction = 'Provide an in-depth summary covering all essential details, context, and nuances without introducing any unstated information.';
         break;
       case 'Medium':
       default:
-        lengthInstruction = 'Provide a balanced, medium-length summary with key takeaways.';
+        lengthInstruction = 'Provide a balanced, medium-length summary covering major takeaways.';
     }
 
     final prompt = '''
-You are an expert AI Summarizer.
-Format guidelines: $modeInstructions $lengthInstruction
+You are an expert AI Summarizer. Your HIGHEST PRIORITY is absolute faithfulness and factual accuracy to the source text.
 
-Document Content:
+PRIORITY ORDER:
+1. Factual accuracy (Highest priority - never introduce unsupported claims)
+2. Faithfulness to source
+3. Coverage of important points
+4. Conciseness
+5. Writing style
+
+STRICT ANTI-HALLUCINATION & FAITHFULNESS RULES:
+1. DO NOT INVENT: Do not invent numerical targets, percentages, expected outcomes, predictions, motivations, causes, conclusions, recommendations, timelines, or relationships between facts unless explicitly stated in the source text.
+2. NEVER STRENGTHEN WORDING: Do not upgrade tentative phrasing. (Example: If source says "may improve performance", summarize as "may improve performance", NEVER "will significantly improve performance").
+3. PRESERVE UNCERTAINTY: Words such as "may", "might", "could", "approximately", "likely", "considered", "proposed", "expected" must NEVER be converted into definite or guaranteed statements.
+4. DO NOT SPECIFY GENERAL GOALS: Do not convert general goals into specific targets. (Example: If source says "reduce delivery delays", summarize as "aims to reduce delivery delays", NEVER "aims to halve delivery delays").
+5. ACCURATE NUMBERS: Keep all numbers exact. Do not round unnecessarily, do not calculate unstated percentages, do not infer unstated trends, and do not derive targets from statistics.
+6. CLEAR DISTINCTION: Clearly distinguish between facts, proposals, decisions, concerns, expected outcomes, and confirmed results. (Example: A proposed action must never be summarized as if it has already happened).
+7. STRICT BOTTOM LINE: The "Bottom line" or conclusion section must strictly synthesize facts from the source, without introducing new conclusions or external inferences.
+8. NEUTRAL LANGUAGE: Avoid sensational words ("dramatically", "massive", "disastrous", "guaranteed", "revolutionary") unless explicitly supported by the source.
+9. INTERNAL FACTUAL CONSISTENCY PASS: Before returning your response, verify every statement against the source text: "Can this statement be directly supported by the source?" If not, remove or rewrite it more conservatively.
+10. PRESERVE MAJOR INFORMATION: Retain main issues, major causes, key numbers, decisions, recommendations, risks, trade-offs, outcomes, and deadlines even when shortening.
+11. NO POLISH AT THE EXPENSE OF ACCURACY: Do not sacrifice factual accuracy for a more polished or persuasive summary.
+12. NEUTRAL GAPS: When the source does not provide enough information to make a conclusion, state facts neutrally without filling gaps with assumptions.
+
+FORMAT INSTRUCTIONS:
+$modeInstructions $lengthInstruction
+
+SOURCE TEXT:
 """
 $text
 """
@@ -294,16 +319,35 @@ $text
     return await generateText(prompt, modelChat);
   }
 
-  /// Summarize image document or scanned notes (Uses Groq Multimodal Vision Model)
+  /// Summarize image document or scanned notes (Uses Groq Multimodal Vision Model with strict anti-hallucination rules)
   Future<String> summarizeVisionDocument(
     String base64ImageUrl, {
     String promptHint = '',
     String mode = 'Executive Summary',
     String length = 'Medium',
   }) async {
-    final userText = promptHint.isNotEmpty
-        ? 'Extract all text from this scanned image/document and summarize it according to these instructions: $promptHint'
-        : 'Extract all text from this scanned image/document and provide a structured $mode ($length length) highlighting key concepts.';
+    final modeText = promptHint.isNotEmpty
+        ? 'Custom Instruction: $promptHint'
+        : 'Mode: $mode ($length length)';
+
+    final userText = '''
+Extract all visible text from this scanned document/image and provide a faithful summary.
+
+PRIORITY ORDER:
+1. Factual accuracy (Highest priority)
+2. Faithfulness to source
+3. Coverage of important points
+4. Conciseness
+
+STRICT RULES:
+- Only include information explicitly stated in the document or direct, unavoidable paraphrases.
+- Do not invent numbers, targets, predictions, causes, or outcomes.
+- Preserve uncertainty words ("may", "might", "could", "proposed", "expected").
+- Distinguish clearly between proposed actions and confirmed results.
+- Keep all numbers, metrics, and dates exact.
+
+$modeText
+''';
 
     return await generateVisionText(userText, base64ImageUrl);
   }
