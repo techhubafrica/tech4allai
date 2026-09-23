@@ -109,6 +109,8 @@ class _SummarizerScreenState extends State<SummarizerScreen> {
   }
 
   Future<void> _summarizeText() async {
+    if (_isLoading) return;
+
     final text = _textController.text.trim();
     if (text.isEmpty && _attachedBase64Image == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -120,9 +122,16 @@ class _SummarizerScreenState extends State<SummarizerScreen> {
       return;
     }
 
+    // Instantly enter loading state on button tap (0ms latency)
+    setState(() {
+      _isLoading = true;
+      _summary = null;
+    });
+
     final canProceed = await _subscriptionService.checkAndIncrementTextUsage();
     if (!canProceed) {
       if (mounted) {
+        setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Daily request limit reached. Please upgrade your tier for more requests.'),
@@ -132,11 +141,6 @@ class _SummarizerScreenState extends State<SummarizerScreen> {
       }
       return;
     }
-
-    setState(() {
-      _isLoading = true;
-      _summary = null;
-    });
 
     try {
       String result = '';
