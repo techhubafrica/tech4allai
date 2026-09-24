@@ -280,6 +280,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               iconColor: Colors.redAccent,
               textColor: Colors.redAccent,
               onTap: () async {
+                await SubscriptionService().setSuperAdminDemoSession(false);
                 await Supabase.instance.client.auth.signOut();
               },
             ),

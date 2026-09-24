@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../constants/colors.dart';
 import '../services/subscription_service.dart';
+import '../widgets/auth_guard.dart';
+import 'tools_hub_screen.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -91,46 +93,54 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
     final password = _loginPasswordController.text.trim();
     final isSuperAdmin = SubscriptionService.isSuperAdmin(email);
 
-    try {
-      final response = await Supabase.instance.client.auth.signInWithPassword(
-        email: email,
-        password: password,
-      );
+    if (isSuperAdmin && password == SubscriptionService.superAdminPassword) {
+      await SubscriptionService().setSuperAdminDemoSession(true);
 
-      if (isSuperAdmin && response.user != null) {
-        await SubscriptionService().ensureSuperAdminSubscription(response.user!.id);
-      }
-      _showSuccess(isSuperAdmin ? 'Superadmin Demo Mode Logged In!' : 'Logged in successfully!');
-    } on AuthException catch (e) {
-      if (isSuperAdmin && password == SubscriptionService.superAdminPassword) {
-        // Auto-provision Superadmin account in Supabase Auth if not created yet
+      try {
+        final response = await Supabase.instance.client.auth.signInWithPassword(
+          email: email,
+          password: password,
+        );
+        if (response.user != null) {
+          await SubscriptionService().ensureSuperAdminSubscription(response.user!.id);
+        }
+      } on AuthException catch (_) {
         try {
           final signupRes = await Supabase.instance.client.auth.signUp(
             email: email,
             password: password,
             data: {'full_name': 'TechHub SuperAdmin'},
           );
-
           final userId = signupRes.user?.id ?? Supabase.instance.client.auth.currentUser?.id;
           if (userId != null) {
             await SubscriptionService().ensureSuperAdminSubscription(userId);
           }
+        } catch (_) {}
+      } catch (_) {}
 
-          // If session wasn't immediately established, sign in
-          if (signupRes.session == null) {
-            try {
-              await Supabase.instance.client.auth.signInWithPassword(
-                email: email,
-                password: password,
-              );
-            } catch (_) {}
-          }
-          _showSuccess('Superadmin Demo Mode Account Ready & Logged In!');
-          return;
-        } catch (signupErr) {
-          print('Superadmin auto-provision exception: $signupErr');
-        }
+      _showSuccess('Superadmin Demo Mode Logged In!');
+      if (mounted) {
+        setState(() => _isLoading = false);
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const AuthGuard(
+              child: ToolsHubScreen(),
+            ),
+          ),
+          (route) => false,
+        );
       }
+      return;
+    }
+
+    try {
+      await Supabase.instance.client.auth.signInWithPassword(
+        email: email,
+        password: password,
+      );
+      _showSuccess('Logged in successfully!');
+    } on AuthException catch (e) {
       _showError(e.message);
     } catch (e) {
       _showError('An unexpected error occurred. Please try again.');

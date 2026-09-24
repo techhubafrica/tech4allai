@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SubscriptionService {
   final SupabaseClient _supabase = Supabase.instance.client;
@@ -22,6 +23,22 @@ class SubscriptionService {
     return email.trim().toLowerCase() == superAdminEmail;
   }
 
+  Future<bool> isSuperAdminLoggedIn() async {
+    final user = _supabase.auth.currentUser;
+    if (user != null && isSuperAdmin(user.email)) return true;
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('is_superadmin_demo') ?? false;
+  }
+
+  Future<void> setSuperAdminDemoSession(bool active) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (active) {
+      await prefs.setBool('is_superadmin_demo', true);
+    } else {
+      await prefs.remove('is_superadmin_demo');
+    }
+  }
+
   /// Provision or update superadmin subscription record in Supabase
   Future<Map<String, dynamic>> ensureSuperAdminSubscription(String userId) async {
     final superAdminSub = {
@@ -41,11 +58,11 @@ class SubscriptionService {
   /// Get current user's subscription details
   Future<Map<String, dynamic>?> getSubscription({bool syncPending = true}) async {
     final user = _supabase.auth.currentUser;
-    final userId = user?.id;
-    if (userId == null) return null;
-
     final userEmail = user?.email?.toLowerCase().trim();
-    if (isSuperAdmin(userEmail)) {
+    final isDemo = await isSuperAdminLoggedIn();
+
+    if (isSuperAdmin(userEmail) || isDemo) {
+      final userId = user?.id ?? 'superadmin_demo_id';
       final superAdminSub = {
         'id': userId,
         'tier': 'SUPERADMIN',
@@ -57,9 +74,14 @@ class SubscriptionService {
         'headshots_this_month': 0,
         'subscription_reset_at': '2099-12-31T23:59:59Z',
       };
-      ensureSuperAdminSubscription(userId);
+      if (user?.id != null) {
+        ensureSuperAdminSubscription(user!.id);
+      }
       return superAdminSub;
     }
+
+    final userId = user?.id;
+    if (userId == null) return null;
 
     if (syncPending) {
       try {
