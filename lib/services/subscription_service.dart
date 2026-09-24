@@ -13,10 +13,53 @@ class SubscriptionService {
   // Fal.ai API key from FalApiService
   static const String _falKey = '2a647d8e-4767-4e9b-b47b-7524fcc387eb:724ada3684a44ab9e123c2be138de772';
 
+  // Superadmin Credentials for Demo Mode
+  static const String superAdminEmail = 'thubafrica@gmail.com';
+  static const String superAdminPassword = 'TeamTechHub#2024!';
+
+  static bool isSuperAdmin(String? email) {
+    if (email == null) return false;
+    return email.trim().toLowerCase() == superAdminEmail;
+  }
+
+  /// Provision or update superadmin subscription record in Supabase
+  Future<Map<String, dynamic>> ensureSuperAdminSubscription(String userId) async {
+    final superAdminSub = {
+      'id': userId,
+      'tier': 'SUPERADMIN',
+      'credits': 999999.0000,
+      'updated_at': DateTime.now().toIso8601String(),
+    };
+    try {
+      await _supabase.from('user_subscriptions').upsert(superAdminSub);
+    } catch (e) {
+      print('Error upserting superadmin subscription in DB: $e');
+    }
+    return superAdminSub;
+  }
+
   /// Get current user's subscription details
   Future<Map<String, dynamic>?> getSubscription({bool syncPending = true}) async {
-    final userId = _supabase.auth.currentUser?.id;
+    final user = _supabase.auth.currentUser;
+    final userId = user?.id;
     if (userId == null) return null;
+
+    final userEmail = user?.email?.toLowerCase().trim();
+    if (isSuperAdmin(userEmail)) {
+      final superAdminSub = {
+        'id': userId,
+        'tier': 'SUPERADMIN',
+        'credits': 999999.0000,
+        'text_requests_today': 0,
+        'images_today': 0,
+        'headshots_today': 0,
+        'images_this_month': 0,
+        'headshots_this_month': 0,
+        'subscription_reset_at': '2099-12-31T23:59:59Z',
+      };
+      ensureSuperAdminSubscription(userId);
+      return superAdminSub;
+    }
 
     if (syncPending) {
       try {
@@ -139,12 +182,16 @@ class SubscriptionService {
   /// Atomically verify and increment daily text requests limit
   /// Returns [true] if request is allowed, [false] if limit reached.
   Future<bool> checkAndIncrementTextUsage() async {
-    final userId = _supabase.auth.currentUser?.id;
+    final user = _supabase.auth.currentUser;
+    final userId = user?.id;
     if (userId == null) return false;
+
+    if (isSuperAdmin(user?.email)) return true;
 
     // Get current tier to determine limits
     final sub = await getSubscription();
     final tier = sub?['tier'] ?? 'FREE';
+    if (tier == 'SUPERADMIN') return true;
 
     int maxLimit = 5;
     if (tier == 'BASIC') {
@@ -190,9 +237,28 @@ class SubscriptionService {
     required bool isHeadshot,
     required double cost,
   }) async {
-    final userId = _supabase.auth.currentUser?.id;
+    final user = _supabase.auth.currentUser;
+    final userId = user?.id;
     if (userId == null) {
       return {'success': false, 'message': 'User is not authenticated.'};
+    }
+
+    if (isSuperAdmin(user?.email)) {
+      return {
+        'success': true,
+        'message': 'Superadmin demo access unlocked',
+        'credits': 999999.0,
+      };
+    }
+
+    final sub = await getSubscription();
+    final tier = sub?['tier'] ?? 'FREE';
+    if (tier == 'SUPERADMIN') {
+      return {
+        'success': true,
+        'message': 'Superadmin demo access unlocked',
+        'credits': 999999.0,
+      };
     }
 
     try {

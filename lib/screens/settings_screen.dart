@@ -142,13 +142,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       Row(
                         children: [
                           Icon(
-                            _userTier == 'FREE' ? Icons.bolt : Icons.stars,
-                            color: AppColors.primary,
+                            _userTier == 'SUPERADMIN'
+                                ? Icons.verified_user_rounded
+                                : (_userTier == 'FREE' ? Icons.bolt : Icons.stars),
+                            color: _userTier == 'SUPERADMIN' ? Colors.cyanAccent : AppColors.primary,
                             size: 20,
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            _isLoadingSubscription ? 'Loading...' : 'Plan: $_userTier',
+                            _isLoadingSubscription
+                                ? 'Loading...'
+                                : (_userTier == 'SUPERADMIN' ? 'Plan: SUPERADMIN (Demo Mode)' : 'Plan: $_userTier'),
                             style: GoogleFonts.inter(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -157,7 +161,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         ],
                       ),
-                      if (!_isLoadingSubscription && _userTier != 'FREE')
+                      if (!_isLoadingSubscription && _userTier == 'SUPERADMIN')
+                        Text(
+                          'Credits: Unlimited',
+                          style: GoogleFonts.inter(
+                            color: Colors.greenAccent,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        )
+                      else if (!_isLoadingSubscription && _userTier != 'FREE')
                         Text(
                           'Credits: \$${_userCredits.toStringAsFixed(2)} USD',
                           style: GoogleFonts.inter(

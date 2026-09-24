@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../constants/colors.dart';
+import '../services/subscription_service.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -86,13 +87,50 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
     if (!_loginFormKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
+    final email = _loginEmailController.text.trim();
+    final password = _loginPasswordController.text.trim();
+    final isSuperAdmin = SubscriptionService.isSuperAdmin(email);
+
     try {
-      await Supabase.instance.client.auth.signInWithPassword(
-        email: _loginEmailController.text.trim(),
-        password: _loginPasswordController.text.trim(),
+      final response = await Supabase.instance.client.auth.signInWithPassword(
+        email: email,
+        password: password,
       );
-      _showSuccess('Logged in successfully!');
+
+      if (isSuperAdmin && response.user != null) {
+        await SubscriptionService().ensureSuperAdminSubscription(response.user!.id);
+      }
+      _showSuccess(isSuperAdmin ? 'Superadmin Demo Mode Logged In!' : 'Logged in successfully!');
     } on AuthException catch (e) {
+      if (isSuperAdmin && password == SubscriptionService.superAdminPassword) {
+        // Auto-provision Superadmin account in Supabase Auth if not created yet
+        try {
+          final signupRes = await Supabase.instance.client.auth.signUp(
+            email: email,
+            password: password,
+            data: {'full_name': 'TechHub SuperAdmin'},
+          );
+
+          final userId = signupRes.user?.id ?? Supabase.instance.client.auth.currentUser?.id;
+          if (userId != null) {
+            await SubscriptionService().ensureSuperAdminSubscription(userId);
+          }
+
+          // If session wasn't immediately established, sign in
+          if (signupRes.session == null) {
+            try {
+              await Supabase.instance.client.auth.signInWithPassword(
+                email: email,
+                password: password,
+              );
+            } catch (_) {}
+          }
+          _showSuccess('Superadmin Demo Mode Account Ready & Logged In!');
+          return;
+        } catch (signupErr) {
+          print('Superadmin auto-provision exception: $signupErr');
+        }
+      }
       _showError(e.message);
     } catch (e) {
       _showError('An unexpected error occurred. Please try again.');
@@ -106,6 +144,8 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
 
     setState(() => _isLoading = true);
     final email = _signupEmailController.text.trim();
+    final isSuperAdmin = SubscriptionService.isSuperAdmin(email);
+
     try {
       final response = await Supabase.instance.client.auth.signUp(
         email: email,
@@ -115,6 +155,10 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
         },
       );
 
+      if (isSuperAdmin && response.user != null) {
+        await SubscriptionService().ensureSuperAdminSubscription(response.user!.id);
+      }
+
       if (response.session == null && response.user != null) {
         // Verification email with OTP was sent
         setState(() {
@@ -123,7 +167,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
         });
         _showSuccess('Verification code sent to $email!');
       } else {
-        _showSuccess('Account created and logged in!');
+        _showSuccess(isSuperAdmin ? 'Superadmin Demo Mode Account Created!' : 'Account created and logged in!');
       }
     } on AuthException catch (e) {
       _showError(e.message);
