@@ -205,10 +205,12 @@ class SubscriptionService {
   /// Returns [true] if request is allowed, [false] if limit reached.
   Future<bool> checkAndIncrementTextUsage() async {
     final user = _supabase.auth.currentUser;
+    final isDemo = await isSuperAdminLoggedIn();
+
+    if (isDemo || isSuperAdmin(user?.email)) return true;
+
     final userId = user?.id;
     if (userId == null) return false;
-
-    if (isSuperAdmin(user?.email)) return true;
 
     // Get current tier to determine limits
     final sub = await getSubscription();
@@ -260,17 +262,19 @@ class SubscriptionService {
     required double cost,
   }) async {
     final user = _supabase.auth.currentUser;
-    final userId = user?.id;
-    if (userId == null) {
-      return {'success': false, 'message': 'User is not authenticated.'};
-    }
+    final isDemo = await isSuperAdminLoggedIn();
 
-    if (isSuperAdmin(user?.email)) {
+    if (isDemo || isSuperAdmin(user?.email)) {
       return {
         'success': true,
         'message': 'Superadmin demo access unlocked',
         'credits': 999999.0,
       };
+    }
+
+    final userId = user?.id;
+    if (userId == null) {
+      return {'success': false, 'message': 'User is not authenticated.'};
     }
 
     final sub = await getSubscription();

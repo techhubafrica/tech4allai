@@ -90,6 +90,8 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
           _textRequestsLimit = 50;
         } else if (_userTier == 'PRO') {
           _textRequestsLimit = 150;
+        } else if (_userTier == 'SUPERADMIN') {
+          _textRequestsLimit = 999999;
         } else {
           _textRequestsLimit = 5;
         }
@@ -724,15 +726,19 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
                       'Account Plan: $_userTier',
                       style: GoogleFonts.inter(
                         fontSize: 11,
-                        color: AppColors.neutralTextMuted,
+                        color: _userTier == 'SUPERADMIN' ? Colors.cyanAccent : AppColors.neutralTextMuted,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
-                      'Daily Limit: $_textRequestsToday / $_textRequestsLimit queries',
+                      _userTier == 'SUPERADMIN'
+                          ? 'Daily Limit: Unlimited'
+                          : 'Daily Limit: $_textRequestsToday / $_textRequestsLimit queries',
                       style: GoogleFonts.inter(
                         fontSize: 11,
-                        color: _textRequestsToday >= _textRequestsLimit ? Colors.redAccent : AppColors.neutralTextMuted,
+                        color: _userTier == 'SUPERADMIN'
+                            ? Colors.cyanAccent
+                            : (_textRequestsToday >= _textRequestsLimit ? Colors.redAccent : AppColors.neutralTextMuted),
                         fontWeight: FontWeight.w600,
                       ),
                     ),

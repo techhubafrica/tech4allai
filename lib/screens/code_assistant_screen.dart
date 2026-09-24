@@ -9,6 +9,7 @@ import '../services/subscription_service.dart';
 import '../services/chat_history_service.dart';
 import '../widgets/chat_history_drawer.dart';
 import '../widgets/formatted_message_view.dart';
+import '../widgets/upgrade_prompt_dialog.dart';
 
 class CodeAssistantScreen extends StatefulWidget {
   const CodeAssistantScreen({super.key});
@@ -24,6 +25,37 @@ class _CodeAssistantScreenState extends State<CodeAssistantScreen> {
   final HuggingFaceService _hfService = HuggingFaceService();
   final SubscriptionService _subscriptionService = SubscriptionService();
   final ChatHistoryService _historyService = ChatHistoryService();
+
+  String _userTier = 'FREE';
+  int _textRequestsToday = 0;
+  int _textRequestsLimit = 5;
+  bool _isLoadingLimitInfo = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshLimitInfo();
+  }
+
+  Future<void> _refreshLimitInfo() async {
+    final sub = await _subscriptionService.getSubscription();
+    if (mounted && sub != null) {
+      setState(() {
+        _userTier = sub['tier'] ?? 'FREE';
+        _textRequestsToday = sub['text_requests_today'] ?? 0;
+        if (_userTier == 'BASIC') {
+          _textRequestsLimit = 50;
+        } else if (_userTier == 'PRO') {
+          _textRequestsLimit = 150;
+        } else if (_userTier == 'SUPERADMIN') {
+          _textRequestsLimit = 999999;
+        } else {
+          _textRequestsLimit = 5;
+        }
+        _isLoadingLimitInfo = false;
+      });
+    }
+  }
 
   String _selectedMode = 'Write & Generate';
   String _selectedLanguage = 'All Languages';
@@ -133,18 +165,24 @@ class _CodeAssistantScreenState extends State<CodeAssistantScreen> {
 
     // 2. Subscription Limit Check
     final canProceed = await _subscriptionService.checkAndIncrementTextUsage();
-    if (!canProceed) {
+    if (!canProceed && _userTier != 'SUPERADMIN') {
       if (mounted) {
-        setState(() => _isSending = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Daily request limit reached. Please upgrade your tier for more requests.'),
-            backgroundColor: Colors.redAccent,
-          ),
+        setState(() {
+          _isSending = false;
+          if (_messages.isNotEmpty && _messages.last['isUser'] == true) {
+            _messages.removeLast();
+          }
+          _promptController.text = userPrompt;
+        });
+        UpgradePromptDialog.show(
+          context,
+          title: "Daily Limit Reached",
+          message: "You have completed your daily quota of requests on the $_userTier tier. Upgrade to BASIC or PRO to get up to 150 requests per day!",
         );
       }
       return;
     }
+    _refreshLimitInfo();
 
     // 3. Call AI Code Model
     try {
@@ -336,6 +374,33 @@ class _CodeAssistantScreenState extends State<CodeAssistantScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if (!_isLoadingLimitInfo) ...[
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Account Plan: $_userTier',
+                            style: GoogleFonts.inter(
+                              fontSize: 11,
+                              color: _userTier == 'SUPERADMIN' ? Colors.cyanAccent : AppColors.neutralTextMuted,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            _userTier == 'SUPERADMIN'
+                                ? 'Daily Limit: Unlimited'
+                                : 'Daily Limit: $_textRequestsToday / $_textRequestsLimit queries',
+                            style: GoogleFonts.inter(
+                              fontSize: 11,
+                              color: _userTier == 'SUPERADMIN' ? Colors.cyanAccent : AppColors.neutralTextMuted,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                   // Task Mode Chips
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
