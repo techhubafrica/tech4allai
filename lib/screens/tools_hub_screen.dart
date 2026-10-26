@@ -38,7 +38,8 @@ class ToolsHubScreen extends StatelessWidget {
               childAspectRatio = 0.85;
             }
 
-            return Center(
+            return Align(
+              alignment: Alignment.topCenter,
               child: ConstrainedBox(
                 constraints: BoxConstraints(maxWidth: maxContentWidth),
                 child: Column(
