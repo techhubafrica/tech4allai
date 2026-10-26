@@ -398,41 +398,51 @@ class _HeadshotsScreenState extends State<HeadshotsScreen> {
         child: Column(
           children: [
             if (!_isLoadingLimitInfo) ...[
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      _userTier == 'FREE'
-                          ? 'Daily: $_headshotsToday / 2 | Monthly: $_headshotsThisMonth / 15'
-                          : 'Balance: \$${_userCredits.toStringAsFixed(2)} USD',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: AppColors.neutralTextMuted,
-                        fontWeight: FontWeight.w600,
-                      ),
+              Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 850),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          _userTier == 'FREE'
+                              ? 'Daily: $_headshotsToday / 2 | Monthly: $_headshotsThisMonth / 15'
+                              : 'Balance: \$${_userCredits.toStringAsFixed(2)} USD',
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            color: AppColors.neutralTextMuted,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          _userTier == 'FREE' ? 'Using Klein Model' : 'Using Pro Models',
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
-                    Text(
-                      _userTier == 'FREE' ? 'Using Klein Model' : 'Using Pro Models',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ],
-             Expanded(
-               child: SingleChildScrollView(
+            Expanded(
+              child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
-                 child: _referenceUrl == null
-                   ? _buildPhase1Layout() 
-                   : _buildPhase2Layout(),
-               ),
-             ),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 850),
+                    child: _referenceUrl == null
+                        ? _buildPhase1Layout() 
+                        : _buildPhase2Layout(),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),

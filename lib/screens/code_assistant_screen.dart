@@ -366,14 +366,18 @@ class _CodeAssistantScreenState extends State<CodeAssistantScreen> {
           children: [
             // Mode & Language Controls Header
             Container(
+              width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               decoration: const BoxDecoration(
                 color: AppColors.neutralSurface,
                 border: Border(bottom: BorderSide(color: AppColors.neutralBorder)),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1000),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                   if (!_isLoadingLimitInfo) ...[
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8.0),
@@ -470,9 +474,15 @@ class _CodeAssistantScreenState extends State<CodeAssistantScreen> {
                 ],
               ),
             ),
+          ),
+        ),
 
-            // Chat & Code Stream
-            Expanded(
+        // Chat & Code Stream
+        Expanded(
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1000),
               child: ListView.builder(
                 controller: _scrollController,
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -573,10 +583,15 @@ class _CodeAssistantScreenState extends State<CodeAssistantScreen> {
                 },
               ),
             ),
+          ),
+        ),
 
-            // Attached File Badge
-            if (_attachedFileName != null)
-              Container(
+        // Attached File Badge
+        if (_attachedFileName != null)
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1000),
+              child: Container(
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
@@ -608,14 +623,20 @@ class _CodeAssistantScreenState extends State<CodeAssistantScreen> {
                   ],
                 ),
               ),
+            ),
+          ),
 
-            // Bottom Code Input Bar
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: const BoxDecoration(
-                color: AppColors.backgroundDark,
-                border: Border(top: BorderSide(color: AppColors.neutralBorder)),
-              ),
+        // Bottom Code Input Bar
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: const BoxDecoration(
+            color: AppColors.backgroundDark,
+            border: Border(top: BorderSide(color: AppColors.neutralBorder)),
+          ),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1000),
               child: Row(
                 children: [
                   IconButton(
@@ -664,7 +685,9 @@ class _CodeAssistantScreenState extends State<CodeAssistantScreen> {
                 ],
               ),
             ),
-          ],
+          ),
+        ),
+      ],
         ),
       ),
     );

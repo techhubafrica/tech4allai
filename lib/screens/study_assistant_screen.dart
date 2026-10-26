@@ -373,86 +373,105 @@ class _StudyAssistantScreenState extends State<StudyAssistantScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            if (!_isLoadingLimitInfo) ...[
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 850),
+                child: Column(
                   children: [
-                    Text(
-                      'Account Plan: $_userTier',
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        color: AppColors.neutralTextMuted,
-                        fontWeight: FontWeight.bold,
+                    if (!_isLoadingLimitInfo) ...[
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Account Plan: $_userTier',
+                              style: GoogleFonts.inter(
+                                fontSize: 11,
+                                color: AppColors.neutralTextMuted,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              'Daily Limit: $_textRequestsToday / $_textRequestsLimit queries',
+                              style: GoogleFonts.inter(
+                                fontSize: 11,
+                                color: _textRequestsToday >= _textRequestsLimit ? Colors.redAccent : AppColors.neutralTextMuted,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    Text(
-                      'Daily Limit: $_textRequestsToday / $_textRequestsLimit queries',
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        color: _textRequestsToday >= _textRequestsLimit ? Colors.redAccent : AppColors.neutralTextMuted,
-                        fontWeight: FontWeight.w600,
+                    ],
+                    // Quick Tools/Prompts
+                    Container(
+                      height: 50,
+                      margin: const EdgeInsets.only(bottom: 8),
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        children: [
+                          _buildQuickAction('Explain Concept'),
+                          const SizedBox(width: 8),
+                          _buildQuickAction('Make Quiz'),
+                          const SizedBox(width: 8),
+                          _buildQuickAction('Outline Essay'),
+                          const SizedBox(width: 8),
+                          _buildQuickAction('Summarize Notes'),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
-            ],
-            // Quick Tools/Prompts
-            Container(
-              height: 50,
-              margin: const EdgeInsets.only(bottom: 8),
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                children: [
-                  _buildQuickAction('Explain Concept'),
-                  const SizedBox(width: 8),
-                  _buildQuickAction('Make Quiz'),
-                  const SizedBox(width: 8),
-                  _buildQuickAction('Outline Essay'),
-                  const SizedBox(width: 8),
-                  _buildQuickAction('Summarize Notes'),
-                ],
-              ),
             ),
 
             // Chat Area
             Expanded(
-              child: ListView.builder(
-                controller: _scrollController,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                itemCount: _messages.length + (_isTyping ? 1 : 0),
-                itemBuilder: (context, index) {
-                  if (index == _messages.length && _isTyping) {
-                     return const ChatMessage(
-                      isUser: false,
-                      message: "Thinking...",
-                      isLoading: true,
-                    );
-                  }
-                  final msg = _messages[index];
-                  return ChatMessage(
-                    isUser: msg['isUser'],
-                    message: msg['message'],
-                    isLoading: msg['isLoading'] ?? false,
-                    imageUrl: msg['imageUrl'],
-                  );
-                },
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 850),
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    itemCount: _messages.length + (_isTyping ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index == _messages.length && _isTyping) {
+                         return const ChatMessage(
+                          isUser: false,
+                          message: "Thinking...",
+                          isLoading: true,
+                        );
+                      }
+                      final msg = _messages[index];
+                      return ChatMessage(
+                        isUser: msg['isUser'],
+                        message: msg['message'],
+                        isLoading: msg['isLoading'] ?? false,
+                        imageUrl: msg['imageUrl'],
+                      );
+                    },
+                  ),
+                ),
               ),
             ),
             
             // Input Area
             TextFieldTapRegion(
               child: Container(
+                width: double.infinity,
                 padding: const EdgeInsets.all(16),
                 decoration: const BoxDecoration(
                   color: AppColors.backgroundDark,
                   border: Border(top: BorderSide(color: AppColors.neutralBorder, width: 0.5)),
                 ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 850),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
                   children: [
                     // Staged Image Preview
                     if (_attachedImage != null)
@@ -550,7 +569,9 @@ class _StudyAssistantScreenState extends State<StudyAssistantScreen> {
                 ),
               ),
             ),
-          ],
+          ),
+        ),
+      ],
         ),
       ),
     );

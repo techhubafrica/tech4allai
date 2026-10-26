@@ -614,8 +614,13 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Model Switcher
-            Container(
+            Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 850),
+                child: Column(
+                  children: [
+                    // Model Switcher
+                    Container(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
@@ -765,10 +770,18 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
                 ],
               ),
             ),
+                  ],
+                ),
+              ),
+            ),
             
             // Chat Area
             Expanded(
-              child: ListView.builder(
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 850),
+                  child: ListView.builder(
                 controller: _scrollController,
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 itemCount: _messages.length + (_isTyping ? 1 : 0),
@@ -791,15 +804,21 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
                 },
               ),
             ),
+          ),
+        ),
             
-            // Input Area
-            TextFieldTapRegion(
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: const BoxDecoration(
-                  color: AppColors.backgroundDark,
-                  border: Border(top: BorderSide(color: AppColors.neutralBorder, width: 0.5)),
-                ),
+        // Input Area
+        TextFieldTapRegion(
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: const BoxDecoration(
+              color: AppColors.backgroundDark,
+              border: Border(top: BorderSide(color: AppColors.neutralBorder, width: 0.5)),
+            ),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 850),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -942,7 +961,9 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
                 ),
               ),
             ),
-          ],
+          ),
+        ),
+      ],
         ),
       ),
     );

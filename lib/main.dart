@@ -60,13 +60,8 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       builder: (context, child) {
         return Container(
-          color: Colors.black, // Outer background for wide screens
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 500),
-              child: child!,
-            ),
-          ),
+          color: AppColors.backgroundDark,
+          child: child!,
         );
       },
       theme: ThemeData(

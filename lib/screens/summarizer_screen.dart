@@ -317,9 +317,12 @@ class _SummarizerScreenState extends State<SummarizerScreen> {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 850),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
             // Upload Area
             Container(
               padding: const EdgeInsets.all(20),
@@ -698,6 +701,8 @@ class _SummarizerScreenState extends State<SummarizerScreen> {
           ],
         ),
       ),
-    );
+    ),
+  ),
+);
   }
 }

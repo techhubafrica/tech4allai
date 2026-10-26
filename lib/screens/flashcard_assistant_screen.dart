@@ -363,65 +363,79 @@ class _FlashcardAssistantScreenState extends State<FlashcardAssistantScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            if (!_isLoadingLimitInfo) ...[
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 850),
+                child: Column(
                   children: [
-                    Text(
-                      'Account Plan: $_userTier',
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        color: AppColors.neutralTextMuted,
-                        fontWeight: FontWeight.bold,
+                    if (!_isLoadingLimitInfo) ...[
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Account Plan: $_userTier',
+                              style: GoogleFonts.inter(
+                                fontSize: 11,
+                                color: AppColors.neutralTextMuted,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              'Daily Limit: $_textRequestsToday / $_textRequestsLimit queries',
+                              style: GoogleFonts.inter(
+                                fontSize: 11,
+                                color: _textRequestsToday >= _textRequestsLimit ? Colors.redAccent : AppColors.neutralTextMuted,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                    // Quick Tools/Prompts
+                    Container(
+                      height: 50,
+                      margin: const EdgeInsets.only(bottom: 8),
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        children: [
+                          _buildQuickAction('Biology Mitosis'),
+                          const SizedBox(width: 8),
+                          _buildQuickAction('Chemistry Elements'),
+                          const SizedBox(width: 8),
+                          _buildQuickAction('History Dates'),
+                          const SizedBox(width: 8),
+                          _buildQuickAction('Spanish Vocab'),
+                        ],
                       ),
                     ),
-                    Text(
-                      'Daily Limit: $_textRequestsToday / $_textRequestsLimit queries',
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        color: _textRequestsToday >= _textRequestsLimit ? Colors.redAccent : AppColors.neutralTextMuted,
-                        fontWeight: FontWeight.w600,
+                    
+                    // Onboarding text / Description
+                    if (_flashcards.isEmpty && !_isLoading)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                        child: Text(
+                          'Upload study materials or enter text below to generate custom AI flashcards.',
+                          style: GoogleFonts.inter(color: AppColors.neutralTextMuted, height: 1.4),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
-                    ),
                   ],
                 ),
               ),
-            ],
-            // Quick Tools/Prompts
-            Container(
-              height: 50,
-              margin: const EdgeInsets.only(bottom: 8),
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                children: [
-                  _buildQuickAction('Biology Mitosis'),
-                  const SizedBox(width: 8),
-                  _buildQuickAction('Chemistry Elements'),
-                  const SizedBox(width: 8),
-                  _buildQuickAction('History Dates'),
-                  const SizedBox(width: 8),
-                  _buildQuickAction('Spanish Vocab'),
-                ],
-              ),
             ),
-            
-            // Onboarding text / Description
-            if (_flashcards.isEmpty && !_isLoading)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                child: Text(
-                  'Upload study materials or enter text below to generate custom AI flashcards.',
-                  style: GoogleFonts.inter(color: AppColors.neutralTextMuted, height: 1.4),
-                  textAlign: TextAlign.center,
-                ),
-              ),
 
             // Main Display Area
             Expanded(
-              child: _buildMainContent(),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 850),
+                  child: _buildMainContent(),
+                ),
+              ),
             ),
 
             // Attached Image Preview
@@ -572,98 +586,109 @@ class _FlashcardAssistantScreenState extends State<FlashcardAssistantScreen> {
   }
 
   Widget _buildImagePreview() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: AppColors.neutralSurface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.neutralBorder),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.image, color: Colors.amberAccent, size: 24),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              _attachedImage!.name,
-              style: GoogleFonts.inter(color: Colors.white, fontSize: 13),
-              overflow: TextOverflow.ellipsis,
-            ),
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 850),
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: AppColors.neutralSurface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.neutralBorder),
           ),
-          if (_isUploadingImage)
-            const SizedBox(
-              width: 16,
-              height: 16,
-              child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(AppColors.primary)),
-            )
-          else
-            IconButton(
-              icon: const Icon(Icons.close, color: Colors.redAccent, size: 18),
-              onPressed: _clearAttachedImage,
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-            ),
-        ],
+          child: Row(
+            children: [
+              const Icon(Icons.image, color: Colors.amberAccent, size: 24),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  _attachedImage!.name,
+                  style: GoogleFonts.inter(color: Colors.white, fontSize: 13),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              if (_isUploadingImage)
+                const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(AppColors.primary)),
+                )
+              else
+                IconButton(
+                  icon: const Icon(Icons.close, color: Colors.redAccent, size: 18),
+                  onPressed: _clearAttachedImage,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }
 
   Widget _buildInputSection() {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: const BoxDecoration(
         color: AppColors.backgroundDark,
         border: Border(top: BorderSide(color: AppColors.neutralBorder, width: 0.5)),
       ),
-      child: Row(
-        children: [
-          // Attachment options
-          IconButton(
-            icon: const Icon(Icons.add_a_photo, color: Colors.white70),
-            onPressed: () => _pickImage(ImageSource.camera),
-          ),
-          IconButton(
-            icon: const Icon(Icons.photo_library, color: Colors.white70),
-            onPressed: () => _pickImage(ImageSource.gallery),
-          ),
-          const SizedBox(width: 8),
-          
-          // TextField
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                color: AppColors.neutralSurface,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: AppColors.neutralBorder),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 850),
+          child: Row(
+            children: [
+              // Attachment options
+              IconButton(
+                icon: const Icon(Icons.add_a_photo, color: Colors.white70),
+                onPressed: () => _pickImage(ImageSource.camera),
               ),
-              child: TextField(
-                controller: _promptController,
-                style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
-                decoration: InputDecoration(
-                  hintText: 'Enter topic or copy notes...',
-                  hintStyle: GoogleFonts.inter(color: AppColors.neutralTextMuted),
-                  border: InputBorder.none,
+              IconButton(
+                icon: const Icon(Icons.photo_library, color: Colors.white70),
+                onPressed: () => _pickImage(ImageSource.gallery),
+              ),
+              const SizedBox(width: 8),
+              
+              // TextField
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: AppColors.neutralSurface,
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: AppColors.neutralBorder),
+                  ),
+                  child: TextField(
+                    controller: _promptController,
+                    style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
+                    decoration: InputDecoration(
+                      hintText: 'Enter topic or copy notes...',
+                      hintStyle: GoogleFonts.inter(color: AppColors.neutralTextMuted),
+                      border: InputBorder.none,
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          
-          // Send Button
-          GestureDetector(
-            onTap: _isLoading || _isUploadingImage ? null : _generateFlashcards,
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: const BoxDecoration(
-                color: AppColors.primary,
-                shape: BoxShape.circle,
+              const SizedBox(width: 12),
+              
+              // Send Button
+              GestureDetector(
+                onTap: _isLoading || _isUploadingImage ? null : _generateFlashcards,
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: const BoxDecoration(
+                    color: AppColors.primary,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.arrow_upward, color: Colors.white, size: 18),
+                ),
               ),
-              child: const Icon(Icons.arrow_upward, color: Colors.white, size: 18),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

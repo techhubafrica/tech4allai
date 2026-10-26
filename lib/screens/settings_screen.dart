@@ -78,8 +78,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 700),
+            child: Column(
+              children: [
             // User Profile Section
             Container(
               padding: const EdgeInsets.all(16),
@@ -296,7 +299,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 2),
+    ),
+  ),
+  bottomNavigationBar: const CustomBottomNavBar(currentIndex: 2),
     );
   }
 

@@ -18,132 +18,159 @@ class ToolsHubScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.backgroundDark,
       body: SafeArea(
-        child: Column(
-          children: [
-             // Custom Header matching others
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                       Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Center(
-                          child: Text(
-                            'T',
-                            style: GoogleFonts.inter(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              fontSize: 18,
-                            ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final double width = constraints.maxWidth;
+            int crossAxisCount = 2;
+            double childAspectRatio = 0.85;
+            double maxContentWidth = double.infinity;
+
+            if (width >= 1050) {
+              crossAxisCount = 4;
+              childAspectRatio = 1.05;
+              maxContentWidth = 1150;
+            } else if (width >= 680) {
+              crossAxisCount = 3;
+              childAspectRatio = 0.95;
+              maxContentWidth = 880;
+            } else {
+              crossAxisCount = 2;
+              childAspectRatio = 0.85;
+            }
+
+            return Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: maxContentWidth),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Custom Header matching others
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    'T',
+                                    style: GoogleFonts.inter(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                'AI Tools Hub',
+                                style: GoogleFonts.inter(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
+                          Container(
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              color: AppColors.neutralSurface,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: AppColors.neutralBorder),
+                            ),
+                            child: const Icon(Icons.search, color: Colors.white, size: 24),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 12),
-                      Text(
-                        'AI Tools Hub',
-                        style: GoogleFonts.inter(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: AppColors.neutralSurface,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.neutralBorder),
                     ),
-                    child: const Icon(Icons.search, color: Colors.white, size: 24),
-                  ),
-                ],
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+                      child: Text(
+                        'Empowering your creativity & productivity with state-of-the-art AI models.',
+                        style: GoogleFonts.inter(color: AppColors.neutralTextMuted, height: 1.4),
+                      ),
+                    ),
+                    Expanded(
+                      child: GridView.count(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        crossAxisCount: crossAxisCount,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
+                        childAspectRatio: childAspectRatio,
+                        children: [
+                          ToolGridCard(
+                            icon: Icons.image,
+                            title: 'Image\nGenerator',
+                            description: 'Text to Image',
+                            color: Colors.purpleAccent,
+                            isNew: true,
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AiImageGeneratorScreen())),
+                          ),
+                          ToolGridCard(
+                            icon: Icons.face,
+                            title: 'Pro\nHeadshots',
+                            description: 'Studio Quality',
+                            color: Colors.blueAccent,
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HeadshotsScreen())),
+                          ),
+                          ToolGridCard(
+                            icon: Icons.summarize,
+                            title: 'AI\nSummarizer',
+                            description: 'Condense Text',
+                            color: Colors.orangeAccent,
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SummarizerScreen())),
+                          ),
+                          ToolGridCard(
+                            icon: Icons.security,
+                            title: 'Detector &\nHumanizer',
+                            description: 'AI Check',
+                            color: Colors.redAccent,
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DetectorScreen())),
+                          ),
+                          ToolGridCard(
+                            icon: Icons.school,
+                            title: 'Study\nAssistant',
+                            description: 'Homework Help',
+                            color: Colors.greenAccent,
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const StudyAssistantScreen())),
+                          ),
+                          ToolGridCard(
+                            icon: Icons.code,
+                            title: 'Code\nAssistant',
+                            description: 'Debug & Write',
+                            color: Colors.cyanAccent,
+                            onTap: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (_) => const CodeAssistantScreen()));
+                            },
+                          ),
+                          ToolGridCard(
+                            icon: Icons.auto_awesome,
+                            title: 'FlashCard\nAssistant',
+                            description: 'AI Study Cards',
+                            color: Colors.amberAccent,
+                            onTap: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (_) => const FlashcardAssistantScreen()));
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-              child: Text(
-                'Empowering your creativity & productivity with state-of-the-art AI models.',
-                style: GoogleFonts.inter(color: AppColors.neutralTextMuted, height: 1.4),
-              ),
-            ),
-            
-            Expanded(
-              child: GridView.count(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 0.85, // Adjust for taller cards
-                children: [
-                  ToolGridCard(
-                    icon: Icons.image,
-                    title: 'Image\nGenerator',
-                    description: 'Text to Image',
-                    color: Colors.purpleAccent,
-                    isNew: true,
-                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AiImageGeneratorScreen())),
-                  ),
-                  ToolGridCard(
-                    icon: Icons.face,
-                    title: 'Pro\nHeadshots',
-                    description: 'Studio Quality',
-                    color: Colors.blueAccent,
-                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HeadshotsScreen())),
-                  ),
-                  ToolGridCard(
-                    icon: Icons.summarize,
-                    title: 'AI\nSummarizer',
-                    description: 'Condense Text',
-                    color: Colors.orangeAccent,
-                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SummarizerScreen())),
-                  ),
-                  ToolGridCard(
-                    icon: Icons.security,
-                    title: 'Detector &\nHumanizer',
-                    description: 'AI Check',
-                    color: Colors.redAccent,
-                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DetectorScreen())),
-                  ),
-                  ToolGridCard(
-                    icon: Icons.school,
-                    title: 'Study\nAssistant',
-                    description: 'Homework Help',
-                    color: Colors.greenAccent,
-                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const StudyAssistantScreen())),
-                  ),
-                  ToolGridCard(
-                    icon: Icons.code,
-                    title: 'Code\nAssistant',
-                    description: 'Debug & Write',
-                    color: Colors.cyanAccent,
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => const CodeAssistantScreen()));
-                    },
-                  ),
-                  ToolGridCard(
-                    icon: Icons.auto_awesome,
-                    title: 'FlashCard\nAssistant',
-                    description: 'AI Study Cards',
-                    color: Colors.amberAccent,
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => const FlashcardAssistantScreen()));
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ],
+            );
+          },
         ),
       ),
       bottomNavigationBar: const CustomBottomNavBar(currentIndex: 0),

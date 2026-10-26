@@ -56,8 +56,11 @@ class _DetectorScreenState extends State<DetectorScreen> {
       body: UnderDevelopmentOverlay(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 800),
+              child: Column(
+                children: [
               // Result Area
               if (_hasResult && _aiProbability != null)
                 Container(
@@ -183,6 +186,8 @@ class _DetectorScreenState extends State<DetectorScreen> {
           ),
         ),
       ),
-    );
+    ),
+  ),
+);
   }
 }

@@ -385,38 +385,46 @@ class _AiImageGeneratorScreenState extends State<AiImageGeneratorScreen> {
           children: [
             
             if (!_isLoadingLimitInfo) ...[
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      _userTier == 'FREE'
-                          ? 'Daily: $_imagesToday / 5 | Monthly: $_imagesThisMonth / 25'
-                          : 'Balance: \$${_userCredits.toStringAsFixed(2)} USD',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: AppColors.neutralTextMuted,
-                        fontWeight: FontWeight.w600,
-                      ),
+              Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 850),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          _userTier == 'FREE'
+                              ? 'Daily: $_imagesToday / 5 | Monthly: $_imagesThisMonth / 25'
+                              : 'Balance: \$${_userCredits.toStringAsFixed(2)} USD',
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            color: AppColors.neutralTextMuted,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          _userTier == 'FREE' ? 'Using Schnell Model' : 'Using Pro Models',
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
-                    Text(
-                      _userTier == 'FREE' ? 'Using Schnell Model' : 'Using Pro Models',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ],
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  children: [
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 850),
+                    child: Column(
+                      children: [
                     // Custom Tabs
                     Container(
                       margin: const EdgeInsets.only(bottom: 24),
@@ -688,7 +696,9 @@ class _AiImageGeneratorScreenState extends State<AiImageGeneratorScreen> {
                 ),
               ),
             ),
-          ],
+          ),
+        ),
+      ],
         ),
       ),
     );

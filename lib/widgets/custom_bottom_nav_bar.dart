@@ -50,13 +50,18 @@ class CustomBottomNavBar extends StatelessWidget {
         border: Border(top: BorderSide(color: AppColors.neutralBorder)),
       ),
       padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildNavItem(context, 0, Icons.grid_view, 'Tools'),
-          _buildNavItem(context, 1, Icons.add_circle_outline, 'Chat'),
-          _buildNavItem(context, 2, Icons.person, 'Profile'),
-        ],
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 600),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildNavItem(context, 0, Icons.grid_view, 'Tools'),
+              _buildNavItem(context, 1, Icons.add_circle_outline, 'Chat'),
+              _buildNavItem(context, 2, Icons.person, 'Profile'),
+            ],
+          ),
+        ),
       ),
     );
   }

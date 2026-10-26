@@ -181,8 +181,11 @@ class _PricingScreenState extends State<PricingScreen> {
           ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
           : SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: Column(
-                children: [
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1100),
+                  child: Column(
+                    children: [
                   // Current Plan Header Banner
                   Container(
                     width: double.infinity,
@@ -381,6 +384,8 @@ class _PricingScreenState extends State<PricingScreen> {
                 ],
               ),
             ),
+          ),
+        ),
     );
   }
 
