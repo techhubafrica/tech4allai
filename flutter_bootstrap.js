@@ -46,11 +46,11 @@ async function fetchLatestBuildId(timeoutMs = 1500) {
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    const response = await fetch(VERSION_URL, {
+    const response = await fetch(VERSION_URL + "?t=" + Date.now(), {
       cache: "no-store",
       signal: controller.signal,
       headers: {
-        "Cache-Control": "no-cache"
+        "Cache-Control": "no-cache, no-store, must-revalidate"
       }
     });
 
@@ -59,7 +59,7 @@ async function fetchLatestBuildId(timeoutMs = 1500) {
     }
 
     const data = await response.json();
-    return String(data.buildId || data.version || "");
+    return String(data.build_number || data.buildId || data.version || "");
   } catch (error) {
     console.warn("Could not check the latest build:", error);
     return null;
@@ -112,6 +112,12 @@ async function checkForNewDeployment() {
       latestBuildId &&
       latestBuildId !== bootBuildId
     ) {
+      if ("caches" in window) {
+        try {
+          const names = await caches.keys();
+          await Promise.all(names.map((name) => caches.delete(name)));
+        } catch (e) {}
+      }
       window.location.reload();
     }
   } finally {
@@ -123,6 +129,19 @@ async function startFlutter() {
   const latestBuildId = await fetchLatestBuildId();
 
   bootBuildId = latestBuildId || "unknown";
+
+  const storedBuildId = localStorage.getItem("app_active_build_id");
+  if (storedBuildId && latestBuildId && storedBuildId !== latestBuildId) {
+    if ("caches" in window) {
+      try {
+        const names = await caches.keys();
+        await Promise.all(names.map((name) => caches.delete(name)));
+      } catch (e) {}
+    }
+  }
+  if (latestBuildId) {
+    localStorage.setItem("app_active_build_id", latestBuildId);
+  }
 
   /*
    * This versions main.dart.js—not merely flutter_bootstrap.js.
