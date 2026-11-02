@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Tech4All AI - Sonder 0.1</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-obsidian: #130d09;
+      --accent-orange: #ff7a00;
+      --accent-amber: #ff9d2e;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #080503;
+      color: #ffffff;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    /* Hide scrollbar for IE, Edge and Firefox */
+    .no-scrollbar {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+    }
+
+    /* Custom Glass & Glow Utilities matching the exact redesign image */
+    .app-canvas {
+      background: radial-gradient(circle at 50% 18%, #28180d 0%, #150d07 45%, #110b07 100%);
+      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 145, 50, 0.1);
+    }
+
+    /* Top bar glass buttons */
+    .glass-pill-top {
+      background: linear-gradient(180deg, rgba(64, 54, 47, 0.65) 0%, rgba(38, 31, 26, 0.65) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.12), 0 4px 12px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(12px);
+    }
+
+    /* Model Selector Track */
+    .selector-track {
+      background: rgba(34, 27, 22, 0.82);
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.6), 0 4px 20px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(16px);
+    }
+
+    /* Active Orange Pill in Selector */
+    .active-model-pill {
+      background: linear-gradient(90deg, #ff981a 0%, #ff7300 55%, #ff5e00 100%);
+      border: 1px solid rgba(255, 225, 185, 0.45);
+      box-shadow: 
+        0 0 22px rgba(255, 120, 0, 0.65),
+        0 0 40px rgba(255, 100, 0, 0.28),
+        inset 0 1.5px 2px rgba(255, 255, 255, 0.45);
+    }
+
+    /* PRO Gold Badge */
+    .pro-badge {
+      background: rgba(185, 125, 20, 0.18);
+      border: 1px solid rgba(238, 175, 55, 0.65);
+      color: #f6c15c;
+      box-shadow: 0 0 10px rgba(238, 175, 55, 0.15);
+    }
+
+    /* Quick Action Chips */
+    .action-chip {
+      background: linear-gradient(145deg, rgba(48, 35, 25, 0.72) 0%, rgba(28, 20, 15, 0.88) 100%);
+      border: 1.2px solid rgba(235, 138, 52, 0.55);
+      box-shadow: 
+        0 4px 14px rgba(0, 0, 0, 0.4),
+        0 0 12px rgba(255, 122, 0, 0.1),
+        inset 0 1px 0.5px rgba(255, 210, 160, 0.18);
+      backdrop-filter: blur(10px);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .action-chip:hover {
+      border-color: rgba(255, 158, 68, 0.85);
+      box-shadow: 
+        0 6px 18px rgba(0, 0, 0, 0.5),
+        0 0 18px rgba(255, 122, 0, 0.26),
+        inset 0 1px 1px rgba(255, 220, 180, 0.25);
+      transform: translateY(-1px);
+    }
+    .action-chip:active {
+      transform: scale(0.97);
+    }
+
+    /* Sparkle Avatar Squircle */
+    .ai-avatar-glow {
+      background: linear-gradient(145deg, #ffa438 0%, #ff6a00 100%);
+      border: 1px solid rgba(255, 230, 195, 0.55);
+      box-shadow: 
+        0 0 22px rgba(255, 115, 0, 0.75),
+        0 4px 12px rgba(0, 0, 0, 0.45),
+        inset 0 1.5px 2px rgba(255, 255, 255, 0.5);
+    }
+
+    /* Main Assistant Response Card */
+    .assistant-card {
+      background: 
+        radial-gradient(circle at 18% 18%, rgba(110, 82, 60, 0.48) 0%, rgba(52, 38, 29, 0.68) 45%, rgba(33, 24, 18, 0.88) 100%);
+      border: 1.5px solid rgba(245, 138, 48, 0.65);
+      box-shadow: 
+        0 0 28px rgba(255, 115, 0, 0.28),
+        0 14px 34px rgba(0, 0, 0, 0.6),
+        inset 0 1px 1.5px rgba(255, 220, 185, 0.22);
+      backdrop-filter: blur(22px);
+    }
+
+    /* Inner Card Buttons (Copy Response, Thumbs Up, Share) */
+    .card-inner-btn {
+      background: linear-gradient(180deg, rgba(78, 60, 46, 0.55) 0%, rgba(50, 37, 28, 0.65) 100%);
+      border: 1px solid rgba(255, 195, 145, 0.22);
+      box-shadow: 
+        0 3px 10px rgba(0, 0, 0, 0.28),
+        inset 0 1px 0.5px rgba(255, 255, 255, 0.14);
+      backdrop-filter: blur(8px);
+      transition: all 0.18s ease;
+    }
+    .card-inner-btn:hover {
+      background: linear-gradient(180deg, rgba(98, 75, 58, 0.7) 0%, rgba(64, 48, 36, 0.75) 100%);
+      border-color: rgba(255, 165, 85, 0.45);
+    }
+    .card-inner-btn:active {
+      transform: scale(0.96);
+    }
+
+    /* Bottom Left Dual Media Pill */
+    .media-pill-group {
+      background: rgba(33, 27, 22, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      box-shadow: 
+        0 6px 20px rgba(0, 0, 0, 0.5),
+        inset 0 1px 1px rgba(255, 255, 255, 0.08);
+    }
+    .media-circle-btn {
+      background: linear-gradient(180deg, rgba(64, 54, 46, 0.72) 0%, rgba(42, 35, 29, 0.72) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.12), 0 2px 6px rgba(0, 0, 0, 0.35);
+      transition: all 0.18s ease;
+    }
+    .media-circle-btn:hover {
+      background: linear-gradient(180deg, rgba(82, 69, 59, 0.85) 0%, rgba(54, 45, 38, 0.85) 100%);
+      border-color: rgba(255, 165, 85, 0.35);
+    }
+    .media-circle-btn:active {
+      transform: scale(0.93);
+    }
+
+    /* Message Input Pill */
+    .message-input-pill {
+      background: linear-gradient(180deg, rgba(44, 35, 28, 0.78) 0%, rgba(28, 22, 17, 0.88) 100%);
+      border: 1.4px solid rgba(235, 130, 42, 0.62);
+      box-shadow: 
+        0 0 22px rgba(255, 115, 0, 0.24),
+        inset 0 2px 6px rgba(0, 0, 0, 0.45),
+        inset 0 1px 0.5px rgba(255, 200, 150, 0.15);
+      transition: all 0.2s ease;
+    }
+    .message-input-pill:focus-within {
+      border-color: rgba(255, 150, 55, 0.95);
+      box-shadow: 
+        0 0 28px rgba(255, 122, 0, 0.42),
+        inset 0 2px 6px rgba(0, 0, 0, 0.45);
+    }
+
+    /* Send Circular Button */
+    .send-glow-btn {
+      background: linear-gradient(165deg, #ffa834 0%, #ff7700 55%, #ff5500 100%);
+      border: 1px solid rgba(255, 225, 185, 0.5);
+      box-shadow: 
+        0 0 24px rgba(255, 115, 0, 0.72),
+        0 4px 12px rgba(0, 0, 0, 0.45),
+        inset 0 1.5px 2px rgba(255, 255, 255, 0.45);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .send-glow-btn:hover {
+      transform: scale(1.04);
+      box-shadow: 
+        0 0 30px rgba(255, 128, 0, 0.9),
+        0 6px 14px rgba(0, 0, 0, 0.5),
+        inset 0 1.5px 2px rgba(255, 255, 255, 0.6);
+    }
+    .send-glow-btn:active {
+      transform: scale(0.94);
+    }
+
+    .math-pi {
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 1.35rem;
+      line-height: 1;
+    }
+
+    @keyframes fadeSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .animate-message {
+      animation: fadeSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center sm:py-6 sm:px-4">
+
+  <!-- Mobile Screen Frame (Full screen on mobile devices, sleek phone viewport on desktop) -->
+  <main class="app-canvas relative w-full max-w-[430px] h-[100dvh] sm:h-[880px] sm:max-h-[92vh] sm:rounded-[44px] flex flex-col justify-between overflow-hidden">
+
+    <!-- Subtle Ambient Top Glow -->
+    <div class="pointer-events-none absolute -top-16 left-1/4 w-64 h-44 rounded-full bg-orange-500/15 blur-[70px]"></div>
+
+    <!-- TOP CONTENT WRAPPER -->
+    <div class="flex flex-col flex-1 min-h-0 z-10">
+
+      <!-- 1. HEADER -->
+      <header class="flex items-center justify-between px-4 pt-4 pb-2.5 shrink-0">
+        <!-- Back Button -->
+        <button 
+          id="backBtn"
+          aria-label="Go Back" 
+          class="glass-pill-top w-[44px] h-[44px] rounded-full flex items-center justify-center text-white/90 hover:text-white active:scale-95 transition-transform">
+          <svg class="w-[21px] h-[21px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+        </button>
+
+        <!-- Title -->
+        <h1 class="text-[22px] font-bold tracking-[-0.02em] text-white ml-3 mr-auto sm:mx-auto pl-2">
+          Tech4All AI
+        </h1>
+
+        <!-- Right Controls: History Pill + Settings Gear -->
+        <div class="flex items-center gap-2.5">
+          <button 
+            id="historyBtn"
+            class="glass-pill-top h-[42px] px-4 rounded-full flex items-center gap-2 text-[14.5px] font-semibold text-white/95 hover:text-white active:scale-95 transition-transform">
+            <!-- History Clock Counter-Clockwise SVG -->
+            <svg class="w-[17px] h-[17px] text-white/85" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+              <path d="M3 3v5h5"></path>
+              <path d="M12 7v5l3 2"></path>
+            </svg>
+            <span>History</span>
+          </button>
+
+          <button 
+            id="settingsBtn"
+            aria-label="Settings" 
+            class="w-9 h-9 rounded-full flex items-center justify-center text-[#d4cfc9] hover:text-white active:rotate-45 transition-all">
+            <svg class="w-[24px] h-[24px]" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- 2. MODEL SEGMENTED SWITCHER -->
+      <section class="px-4 pt-2 shrink-0">
+        <div class="selector-track relative p-[5px] rounded-full grid grid-cols-2 items-center">
+          <!-- Sonder 0.1 Button -->
+          <button 
+            id="modelSonderStandard"
+            onclick="switchModel('standard')"
+            class="active-model-pill relative z-10 h-[44px] rounded-full flex items-center justify-center text-[15.5px] font-bold tracking-tight text-white transition-all duration-300">
+            Sonder 0.1
+          </button>
+
+          <!-- Sonder 0.1 Pro Button -->
+          <button 
+            id="modelSonderPro"
+            onclick="switchModel('pro')"
+            class="relative z-10 h-[44px] rounded-full flex items-center justify-center gap-1.5 text-[15px] font-semibold text-white/90 hover:text-white transition-all duration-300">
+            <span>Sonder 0.1 Pro</span>
+            <span class="pro-badge text-[10.5px] font-bold px-2 py-0.5 rounded-full tracking-wider uppercase">
+              PRO
+            </span>
+          </button>
+        </div>
+
+        <!-- Model Subtitle Description -->
+        <p id="modelTagline" class="text-center text-[#9e968f] italic text-[13.2px] leading-[1.35] mt-3 px-4">
+          <span class="not-italic inline-block mr-0.5 text-[#ffb042] drop-shadow-[0_0_6px_rgba(255,149,0,0.6)]">⚡</span>
+          Sonder 0.1 (20B parameters) • Fast, responsive<br />everyday help
+        </p>
+      </section>
+
+      <!-- 3. HORIZONTAL QUICK-ACTION PILLS -->
+      <section class="mt-3.5 shrink-0">
+        <div class="flex items-center gap-2.5 overflow-x-auto no-scrollbar px-4 py-1">
+          <!-- Chip 1: Help me Plan -->
+          <button 
+            onclick="triggerQuickPrompt('Help me plan my week effectively with priorities')"
+            class="action-chip shrink-0 h-[48px] px-4 rounded-full flex items-center gap-2 text-[14px] font-medium text-white/95">
+            <svg class="w-[17px] h-[17px] text-[#f5923e]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="3" ry="3"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            <span>Help me Plan</span>
+          </button>
+
+          <!-- Chip 2: Write an Email -->
+          <button 
+            onclick="triggerQuickPrompt('Write a professional follow-up email to a client')"
+            class="action-chip shrink-0 h-[48px] px-4 rounded-full flex items-center gap-2 text-[14px] font-medium text-white/95">
+            <svg class="w-[17px] h-[17px] text-[#f5923e]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="4" width="20" height="16" rx="3"></rect>
+              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+            </svg>
+            <span>Write an Email</span>
+          </button>
+
+          <!-- Chip 3: Solve Math -->
+          <button 
+            onclick="triggerQuickPrompt('Solve a step-by-step calculus or algebra problem')"
+            class="action-chip shrink-0 h-[48px] px-4 rounded-full flex items-center gap-2 text-[14px] font-medium text-white/95">
+            <span class="math-pi text-[#f5923e] font-normal">π</span>
+            <span>Solve Math</span>
+          </button>
+
+          <!-- Chip 4: Code / Calculate (Partially visible on right edge like reference image) -->
+          <button 
+            onclick="triggerQuickPrompt('Write a clean Python script to automate file sorting')"
+            class="action-chip shrink-0 h-[48px] px-4 rounded-full flex items-center gap-2 text-[14px] font-medium text-white/95">
+            <svg class="w-[17px] h-[17px] text-[#f5923e]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="4" y="2" width="16" height="20" rx="2"></rect>
+              <line x1="8" y1="6" x2="16" y2="6"></line>
+              <line x1="8" y1="10" x2="10" y2="10"></line>
+              <line x1="14" y1="10" x2="16" y2="10"></line>
+              <line x1="8" y1="14" x2="10" y2="14"></line>
+              <line x1="14" y1="14" x2="16" y2="14"></line>
+              <line x1="8" y1="18" x2="10" y2="18"></line>
+              <line x1="14" y1="18" x2="16" y2="18"></line>
+            </svg>
+            <span>Code &amp; Logic</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- 4. CHAT STREAM AREA -->
+      <section id="chatContainer" class="flex-1 overflow-y-auto no-scrollbar px-4 pt-5 pb-4 space-y-5">
+        
+        <!-- Initial AI Greeting Message Row -->
+        <div class="flex items-start gap-3">
+          <!-- Glowing Orange Sparkle Squircle -->
+          <div class="ai-avatar-glow shrink-0 w-[38px] h-[38px] rounded-[12px] flex items-center justify-center mt-0.5">
+            <svg class="w-[21px] h-[21px] text-white" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M11.5 2C11.5 7.2 7.2 11.5 2 11.5C7.2 11.5 11.5 15.8 11.5 21C11.5 15.8 15.8 11.5 21 11.5C15.8 11.5 11.5 7.2 11.5 2Z" />
+              <path d="M19 2C19 4.2 17.2 6 15 6C17.2 6 19 7.8 19 10C19 7.8 20.8 6 23 6C20.8 6 19 4.2 19 2Z" />
+            </svg>
+          </div>
+
+          <!-- Glassmorphic Greeting Bubble -->
+          <div class="assistant-card flex-1 rounded-[24px] p-5 text-white relative">
+            <p id="initialGreetingText" class="text-[17.5px] leading-[1.42] font-normal tracking-[-0.01em] text-white/95">
+              Hello! I am your Tech4All AI assistant. How can I help you today?
+            </p>
+
+            <!-- Copy Response Button Row -->
+            <div class="mt-4 flex justify-end">
+              <button 
+                onclick="copyText('Hello! I am your Tech4All AI assistant. How can I help you today?', this)"
+                class="card-inner-btn h-[40px] px-4 rounded-[12px] flex items-center gap-2 text-[14px] font-semibold text-white">
+                <!-- Orange Dual-Layer Copy Icon -->
+                <svg class="w-[16px] h-[16px] text-[#ff9333]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <span class="copy-label">Copy Response</span>
+              </button>
+            </div>
+
+            <!-- Bottom Right Action Icons (Thumbs Up & Share) -->
+            <div class="mt-3 flex items-center justify-end gap-2">
+              <button 
+                onclick="toggleLike(this)"
+                aria-label="Like response"
+                class="card-inner-btn w-[38px] h-[36px] rounded-[11px] flex items-center justify-center text-[#d8cfc8] hover:text-white">
+                <svg class="w-[17px] h-[17px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+                </svg>
+              </button>
+
+              <button 
+                onclick="shareResponse('Hello! I am your Tech4All AI assistant. How can I help you today?')"
+                aria-label="Share response"
+                class="card-inner-btn w-[38px] h-[36px] rounded-[11px] flex items-center justify-center text-[#d8cfc8] hover:text-white">
+                <svg class="w-[17px] h-[17px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="15 17 20 12 15 7"></polyline>
+                  <path d="M4 18v-2a4 4 0 0 1 4-4h12"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </div>
+
+    <!-- 5. BOTTOM COMPOSER BAR & FOOTER -->
+    <footer class="z-20 px-3.5 pt-2 pb-3.5 bg-gradient-to-t from-[#0d0805] via-[#120c08]/95 to-transparent shrink-0">
+      <div class="flex items-center gap-2.5">
+        
+        <!-- Left Grouped Camera & Gallery Capsule -->
+        <div class="media-pill-group h-[54px] p-1.5 rounded-full flex items-center gap-1.5 shrink-0">
+          <!-- Camera Add Button -->
+          <button 
+            onclick="showToast('Camera capture ready')"
+            aria-label="Open Camera"
+            class="media-circle-btn w-[42px] h-[42px] rounded-full flex items-center justify-center text-[#beb8b2] hover:text-white">
+            <svg class="w-[21px] h-[21px]" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M20 6h-3.17L15 4H9L7.17 6H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-8 13c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.65 0-3 1.35-3 3s1.35 3 3 3 3-1.35 3-3-1.35-3-3-3z"/>
+              <path d="M5 3H3V1H1v2H-1v2h2v2h2V5h2V3z" transform="translate(2, 1) scale(0.85)"/>
+            </svg>
+          </button>
+
+          <!-- Gallery Stack Button -->
+          <button 
+            onclick="showToast('Photo library opened')"
+            aria-label="Open Gallery"
+            class="media-circle-btn w-[42px] h-[42px] rounded-full flex items-center justify-center text-[#beb8b2] hover:text-white">
+            <svg class="w-[20px] h-[20px]" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M22 16V4c0-1.1-.9-2-2-2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2zm-11-4l2.03 2.71L16 11l4 5H8l3-4zM2 6v14c0 1.1.9 2 2 2h14v-2H4V6H2z"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Center Glowing Input Field -->
+        <form id="chatForm" onsubmit="handleSendMessage(event)" class="flex-1 flex items-center gap-2.5 min-w-0">
+          <div class="message-input-pill flex-1 h-[54px] rounded-full px-5 flex items-center">
+            <input 
+              id="messageInput"
+              type="text" 
+              placeholder="Message Tech4All..." 
+              autocomplete="off"
+              class="w-full bg-transparent text-[16px] text-white placeholder-[#8c837b] focus:outline-none"
+            />
+          </div>
+
+          <!-- Right Glowing Orange Send Button -->
+          <button 
+            type="submit"
+            aria-label="Send Message"
+            class="send-glow-btn shrink-0 w-[52px] h-[52px] rounded-full flex items-center justify-center text-white">
+            <svg class="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="19" x2="12" y2="5"></line>
+              <polyline points="6 11 12 5 18 11"></polyline>
+            </svg>
+          </button>
+        </form>
+
+      </div>
+
+      <!-- Bottom Disclaimer -->
+      <p class="text-center text-[#8e857d] text-[11.5px] tracking-[-0.01em] mt-3">
+        AI can make mistakes. Please verify important information.
+      </p>
+    </footer>
+
+    <!-- Subtle Custom Toast Notification (No browser alert) -->
+    <div 
+      id="toastNotification" 
+      class="pointer-events-none fixed top-16 left-1/2 -translate-x-1/2 z-50 opacity-0 translate-y-[-8px] transition-all duration-300 glass-pill-top px-4 py-2 rounded-full text-[13px] font-medium text-amber-200 border border-amber-400/30 shadow-lg">
+      Copied to clipboard
+    </div>
+
+  </main>
+
+  <script>
+    let currentModel = 'standard';
+
+    // Switch between Sonder 0.1 and Sonder 0.1 Pro
+    function switchModel(model) {
+      currentModel = model;
+      const standardBtn = document.getElementById('modelSonderStandard');
+      const proBtn = document.getElementById('modelSonderPro');
+      const tagline = document.getElementById('modelTagline');
+
+      if (model === 'standard') {
+        standardBtn.className = 'active-model-pill relative z-10 h-[44px] rounded-full flex items-center justify-center text-[15.5px] font-bold tracking-tight text-white transition-all duration-300';
+        proBtn.className = 'relative z-10 h-[44px] rounded-full flex items-center justify-center gap-1.5 text-[15px] font-semibold text-white/85 hover:text-white transition-all duration-300';
+        tagline.innerHTML = `<span class="not-italic inline-block mr-0.5 text-[#ffb042] drop-shadow-[0_0_6px_rgba(255,149,0,0.6)]">⚡</span> Sonder 0.1 (20B parameters) • Fast, responsive<br />everyday help`;
+      } else {
+        proBtn.className = 'active-model-pill relative z-10 h-[44px] rounded-full flex items-center justify-center gap-1.5 text-[15px] font-bold tracking-tight text-white transition-all duration-300';
+        standardBtn.className = 'relative z-10 h-[44px] rounded-full flex items-center justify-center text-[15.5px] font-semibold text-white/85 hover:text-white transition-all duration-300';
+        tagline.innerHTML = `<span class="not-italic inline-block mr-0.5 text-[#ffb042] drop-shadow-[0_0_6px_rgba(255,149,0,0.6)]">✨</span> Sonder 0.1 Pro (70B parameters) • Deep reasoning &amp;<br />complex problem solving`;
+      }
+    }
+
+    // Copy text helper using execCommand for iframe compatibility
+    function copyText(text, btnElement) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        const label = btnElement.querySelector('.copy-label');
+        if (label) {
+          const original = label.textContent;
+          label.textContent = 'Copied!';
+          setTimeout(() => { label.textContent = original; }, 1600);
+        }
+        showToast('Response copied to clipboard');
+      } catch (err) {
+        showToast('Could not copy text');
+      }
+      document.body.removeChild(textarea);
+    }
+
+    // Toggle Like state on a response card
+    function toggleLike(btn) {
+      const isLiked = btn.dataset.liked === 'true';
+      if (!isLiked) {
+        btn.dataset.liked = 'true';
+        btn.classList.add('text-[#ff9838]', 'border-[#ff9838]/60');
+        showToast('Thanks for the feedback!');
+      } else {
+        btn.dataset.liked = 'false';
+        btn.classList.remove('text-[#ff9838]', 'border-[#ff9838]/60');
+      }
+    }
+
+    // Share response action
+    function shareResponse(text) {
+      if (navigator.share) {
+        navigator.share({ title: 'Tech4All AI Response', text }).catch(() => {});
+      } else {
+        copyText(text, document.createElement('div'));
+        showToast('Share link copied to clipboard');
+      }
+    }
+
+    // Trigger prompt from quick action chips
+    function triggerQuickPrompt(promptText) {
+      const input = document.getElementById('messageInput');
+      input.value = promptText;
+      input.focus();
+      handleSendMessage(new Event('submit'));
+    }
+
+    // Handle sending a user message and generating an aesthetic AI response card
+    function handleSendMessage(e) {
+      e.preventDefault();
+      const input = document.getElementById('messageInput');
+      const userText = input.value.trim();
+      if (!userText) return;
+
+      const chatContainer = document.getElementById('chatContainer');
+      input.value = '';
+
+      // Append User Message Bubble
+      const userRow = document.createElement('div');
+      userRow.className = 'flex justify-end animate-message';
+      userRow.innerHTML = `
+        <div class="max-w-[80%] rounded-[20px] rounded-br-[6px] px-4 py-3 bg-gradient-to-r from-[#ff8c1a]/25 to-[#ff6200]/30 border border-[#ff9436]/50 text-[15.5px] text-white shadow-md">
+          ${escapeHtml(userText)}
+        </div>
+      `;
+      chatContainer.appendChild(userRow);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+
+      // Simulated AI Reply after brief delay
+      setTimeout(() => {
+        const replyText = generateSmartReply(userText);
+        const escapedReply = escapeHtml(replyText).replace(/'/g, "\\'");
+
+        const aiRow = document.createElement('div');
+        aiRow.className = 'flex items-start gap-3 animate-message';
+        aiRow.innerHTML = `
+          <div class="ai-avatar-glow shrink-0 w-[38px] h-[38px] rounded-[12px] flex items-center justify-center mt-0.5">
+            <svg class="w-[21px] h-[21px] text-white" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M11.5 2C11.5 7.2 7.2 11.5 2 11.5C7.2 11.5 11.5 15.8 11.5 21C11.5 15.8 15.8 11.5 21 11.5C15.8 11.5 11.5 7.2 11.5 2Z" />
+              <path d="M19 2C19 4.2 17.2 6 15 6C17.2 6 19 7.8 19 10C19 7.8 20.8 6 23 6C20.8 6 19 4.2 19 2Z" />
+            </svg>
+          </div>
+          <div class="assistant-card flex-1 rounded-[24px] p-5 text-white relative">
+            <p class="text-[16.5px] leading-[1.45] font-normal tracking-[-0.01em] text-white/95">
+              ${escapeHtml(replyText)}
+            </p>
+            <div class="mt-4 flex justify-end">
+              <button 
+                onclick="copyText('${escapedReply}', this)"
+                class="card-inner-btn h-[40px] px-4 rounded-[12px] flex items-center gap-2 text-[14px] font-semibold text-white">
+                <svg class="w-[16px] h-[16px] text-[#ff9333]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <span class="copy-label">Copy Response</span>
+              </button>
+            </div>
+            <div class="mt-3 flex items-center justify-end gap-2">
+              <button 
+                onclick="toggleLike(this)"
+                aria-label="Like response"
+                class="card-inner-btn w-[38px] h-[36px] rounded-[11px] flex items-center justify-center text-[#d8cfc8] hover:text-white">
+                <svg class="w-[17px] h-[17px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+                </svg>
+              </button>
+              <button 
+                onclick="shareResponse('${escapedReply}')"
+                aria-label="Share response"
+                class="card-inner-btn w-[38px] h-[36px] rounded-[11px] flex items-center justify-center text-[#d8cfc8] hover:text-white">
+                <svg class="w-[17px] h-[17px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="15 17 20 12 15 7"></polyline>
+                  <path d="M4 18v-2a4 4 0 0 1 4-4h12"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        `;
+        chatContainer.appendChild(aiRow);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }, 450);
+    }
+
+    function generateSmartReply(prompt) {
+      const lower = prompt.toLowerCase();
+      const modelLabel = currentModel === 'pro' ? 'Sonder 0.1 Pro' : 'Sonder 0.1';
+      if (lower.includes('plan')) {
+        return `[${modelLabel}] Let's structure your week into 3 core focus blocks: Deep Work mornings, collaborative afternoons, and a 15-minute evening review. Share your top 3 goals and I'll map them out.`;
+      }
+      if (lower.includes('email')) {
+        return `[${modelLabel}] Subject: Quick Follow-Up & Next Steps — Hi there, I hope your week is going well. Wanted to circle back on our recent discussion and see if you had any questions before we move forward.`;
+      }
+      if (lower.includes('math')) {
+        return `[${modelLabel}] Ready to solve! Paste your equation or word problem below, and I'll break down every step clearly with formulas and verification.`;
+      }
+      return `[${modelLabel}] I'm on it! Tell me any specific details or constraints you'd like me to include for "${prompt}".`;
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/[&<>"']/g, function(m) {
+        return ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#039;'
+        })[m];
+      });
+    }
+
+    let toastTimer = null;
+    function showToast(message) {
+      const toast = document.getElementById('toastNotification');
+      toast.textContent = message;
+      toast.classList.remove('opacity-0', 'translate-y-[-8px]');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', 'translate-y-[-8px]');
+      }, 2000);
+    }
+
+    // Header button feedback
+    document.getElementById('historyBtn').addEventListener('click', () => showToast('Viewing recent conversations'));
+    document.getElementById('settingsBtn').addEventListener('click', () => showToast('Model preferences & settings'));
+    document.getElementById('backBtn').addEventListener('click', () => showToast('Returning to dashboard'));
+  </script>
+</body>
+</html>

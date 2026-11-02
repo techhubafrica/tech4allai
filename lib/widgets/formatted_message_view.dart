@@ -5,8 +5,13 @@ import 'package:google_fonts/google_fonts.dart';
 
 class FormattedMessageView extends StatefulWidget {
   final String text;
+  final bool showCopyButton;
 
-  const FormattedMessageView({super.key, required this.text});
+  const FormattedMessageView({
+    super.key,
+    required this.text,
+    this.showCopyButton = true,
+  });
 
   @override
   State<FormattedMessageView> createState() => _FormattedMessageViewState();
@@ -196,14 +201,16 @@ class _FormattedMessageViewState extends State<FormattedMessageView> {
                 'code': CodeBlockBuilder(),
               },
             ),
-            const SizedBox(height: 12),
-            Align(
-              alignment: Alignment.centerRight,
-              child: CopyResponseButton(
-                textToCopy: mainResponseContent,
-                label: 'Copy Full Response',
+            if (widget.showCopyButton) ...[
+              const SizedBox(height: 12),
+              Align(
+                alignment: Alignment.centerRight,
+                child: CopyResponseButton(
+                  textToCopy: mainResponseContent,
+                  label: 'Copy Full Response',
+                ),
               ),
-            ),
+            ],
           ],
         ],
       ),
