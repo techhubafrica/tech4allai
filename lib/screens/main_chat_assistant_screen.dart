@@ -13,6 +13,7 @@ import '../services/chat_history_service.dart';
 import '../widgets/upgrade_prompt_dialog.dart';
 import '../widgets/chat_history_drawer.dart';
 import '../widgets/formatted_message_view.dart';
+import '../widgets/redesign_icons.dart';
 import 'settings_screen.dart';
 import 'tools_hub_screen.dart';
 
@@ -527,34 +528,39 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
     }
   }
 
+  Widget _buildHistoryDrawer() {
+    return ChatHistoryDrawer(
+      featureType: 'main_chat',
+      activeSessionId: _activeSessionId,
+      onSessionSelected: (session) {
+        setState(() {
+          _activeSessionId = session['id'];
+        });
+        _loadMessages();
+      },
+      onNewChatStarted: () {
+        setState(() {
+          _activeSessionId = null;
+          _messages = [
+            {
+              'isUser': false,
+              'message': 'Hello! I am your Tech4All AI assistant. How can I help you today?',
+              'isLoading': false,
+              'imageUrl': null,
+            }
+          ];
+        });
+        _showToast('Started new chat');
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF080503),
-      drawer: ChatHistoryDrawer(
-        featureType: 'main_chat',
-        activeSessionId: _activeSessionId,
-        onSessionSelected: (session) {
-          setState(() {
-            _activeSessionId = session['id'];
-          });
-          _loadMessages();
-        },
-        onNewChatStarted: () {
-          setState(() {
-            _activeSessionId = null;
-            _messages = [
-              {
-                'isUser': false,
-                'message': 'Hello! I am your Tech4All AI assistant. How can I help you today?',
-                'isLoading': false,
-                'imageUrl': null,
-              }
-            ];
-          });
-          _showToast('Started new chat');
-        },
-      ),
+      drawer: _buildHistoryDrawer(),
+      endDrawer: _buildHistoryDrawer(),
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -744,9 +750,8 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
                   ),
                 ],
               ),
-              child: const Center(
-                child: Icon(
-                  Icons.arrow_back_rounded,
+              child: Center(
+                child: RedesignIcons.arrowBack(
                   size: 21,
                   color: Colors.white,
                 ),
@@ -770,7 +775,7 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
             children: [
               Builder(
                 builder: (context) => BouncingButton(
-                  onTap: () => Scaffold.of(context).openDrawer(),
+                  onTap: () => Scaffold.of(context).openEndDrawer(),
                   child: Container(
                     height: 42,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -796,10 +801,9 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(
-                          Icons.history_rounded,
+                        RedesignIcons.history(
                           size: 17,
-                          color: Color(0xD9FFFFFF),
+                          color: const Color(0xD9FFFFFF),
                         ),
                         const SizedBox(width: 8),
                         Text(
@@ -829,11 +833,10 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
                   ),
-                  child: const Center(
-                    child: Icon(
-                      Icons.settings_rounded,
-                      size: 24,
-                      color: Color(0xFFD4CFC9),
+                  child: Center(
+                    child: RedesignIcons.settings(
+                      size: 23,
+                      color: const Color(0xFFD4CFC9),
                     ),
                   ),
                 ),
@@ -1104,20 +1107,18 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         children: [
           _buildActionChip(
-            icon: const Icon(
-              Icons.calendar_today_rounded,
+            icon: RedesignIcons.plan(
               size: 17,
-              color: Color(0xFFF5923E),
+              color: const Color(0xFFF5923E),
             ),
             label: 'Help me Plan',
             prompt: 'Help me plan my week effectively with priorities',
           ),
           const SizedBox(width: 10),
           _buildActionChip(
-            icon: const Icon(
-              Icons.mail_outline_rounded,
+            icon: RedesignIcons.email(
               size: 17,
-              color: Color(0xFFF5923E),
+              color: const Color(0xFFF5923E),
             ),
             label: 'Write an Email',
             prompt: 'Write a professional follow-up email to a client',
@@ -1138,10 +1139,9 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
           ),
           const SizedBox(width: 10),
           _buildActionChip(
-            icon: const Icon(
-              Icons.code_rounded,
+            icon: RedesignIcons.code(
               size: 17,
-              color: Color(0xFFF5923E),
+              color: const Color(0xFFF5923E),
             ),
             label: 'Code & Logic',
             prompt: 'Write a clean Python script to automate file sorting',
@@ -1285,7 +1285,7 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
                           color: Colors.red,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.close, color: Colors.white, size: 14),
+                        child: RedesignIcons.close(size: 13, color: Colors.white),
                       ),
                     ),
                   ),
@@ -1341,11 +1341,10 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
                             ),
                           ],
                         ),
-                        child: const Center(
-                          child: Icon(
-                            Icons.camera_alt_outlined,
+                        child: Center(
+                          child: RedesignIcons.camera(
                             size: 21,
-                            color: Color(0xFFBEB8B2),
+                            color: const Color(0xFFBEB8B2),
                           ),
                         ),
                       ),
@@ -1376,11 +1375,10 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
                             ),
                           ],
                         ),
-                        child: const Center(
-                          child: Icon(
-                            Icons.photo_library_outlined,
+                        child: Center(
+                          child: RedesignIcons.gallery(
                             size: 20,
-                            color: Color(0xFFBEB8B2),
+                            color: const Color(0xFFBEB8B2),
                           ),
                         ),
                       ),
@@ -1487,10 +1485,9 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
                               color: Colors.white,
                             ),
                           )
-                        : const Icon(
-                            Icons.arrow_upward_rounded,
+                        : RedesignIcons.send(
                             color: Colors.white,
-                            size: 24,
+                            size: 22,
                           ),
                   ),
                 ),
@@ -1728,9 +1725,8 @@ class _ChatMessageState extends State<ChatMessage> {
                 ),
               ],
             ),
-            child: const Center(
-              child: Icon(
-                Icons.auto_awesome,
+            child: Center(
+              child: RedesignIcons.aiSparkles(
                 color: Colors.white,
                 size: 21,
               ),
@@ -1838,11 +1834,16 @@ class _ChatMessageState extends State<ChatMessage> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(
-                                _isCopied ? Icons.check_circle_rounded : Icons.copy_all_rounded,
-                                size: 16,
-                                color: _isCopied ? Colors.greenAccent : const Color(0xFFFF9333),
-                              ),
+                              _isCopied
+                                  ? const Icon(
+                                      Icons.check_circle_rounded,
+                                      size: 16,
+                                      color: Colors.greenAccent,
+                                    )
+                                  : RedesignIcons.copy(
+                                      size: 16,
+                                      color: const Color(0xFFFF9333),
+                                    ),
                               const SizedBox(width: 8),
                               Text(
                                 _isCopied ? 'Copied!' : 'Copy Response',
@@ -1895,12 +1896,9 @@ class _ChatMessageState extends State<ChatMessage> {
                               ],
                             ),
                             child: Center(
-                              child: Icon(
-                                _isLiked ? Icons.thumb_up_alt_rounded : Icons.thumb_up_alt_outlined,
+                              child: RedesignIcons.thumbUp(
                                 size: 17,
-                                color: _isLiked
-                                    ? const Color(0xFFFF9838)
-                                    : const Color(0xFFD8CFC8),
+                                isLiked: _isLiked,
                               ),
                             ),
                           ),
@@ -1933,11 +1931,10 @@ class _ChatMessageState extends State<ChatMessage> {
                                 ),
                               ],
                             ),
-                            child: const Center(
-                              child: Icon(
-                                Icons.ios_share_rounded,
+                            child: Center(
+                              child: RedesignIcons.share(
                                 size: 17,
-                                color: Color(0xFFD8CFC8),
+                                color: const Color(0xFFD8CFC8),
                               ),
                             ),
                           ),
