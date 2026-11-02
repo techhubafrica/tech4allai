@@ -45,7 +45,7 @@ class _ToolsHubScreenState extends State<ToolsHubScreen> {
         'isNew': true,
         'badge': 'NEW',
         'gradient': const [Color(0xFFBA68C8), Color(0xFF7B1FA2)],
-        'icon': Icons.image_rounded,
+        'iconWidget': RedesignIcons.toolImage(size: 22, color: Colors.white),
         'screenBuilder': (BuildContext context) => const AiImageGeneratorScreen(),
       },
       {
@@ -56,7 +56,7 @@ class _ToolsHubScreenState extends State<ToolsHubScreen> {
         'isNew': false,
         'badge': 'STUDIO',
         'gradient': const [Color(0xFF42A5F5), Color(0xFF1976D2)],
-        'icon': Icons.face_rounded,
+        'iconWidget': RedesignIcons.toolHeadshots(size: 22, color: Colors.white),
         'screenBuilder': (BuildContext context) => const HeadshotsScreen(),
       },
       {
@@ -67,7 +67,7 @@ class _ToolsHubScreenState extends State<ToolsHubScreen> {
         'isNew': false,
         'badge': 'PRO',
         'gradient': const [Color(0xFFFFA726), Color(0xFFF57C00)],
-        'icon': Icons.summarize_rounded,
+        'iconWidget': RedesignIcons.toolSummarizer(size: 22, color: Colors.white),
         'screenBuilder': (BuildContext context) => const SummarizerScreen(),
       },
       {
@@ -78,7 +78,7 @@ class _ToolsHubScreenState extends State<ToolsHubScreen> {
         'isNew': false,
         'badge': 'VERIFY',
         'gradient': const [Color(0xFFEF5350), Color(0xFFC62828)],
-        'icon': Icons.security_rounded,
+        'iconWidget': RedesignIcons.toolDetector(size: 22, color: Colors.white),
         'screenBuilder': (BuildContext context) => const DetectorScreen(),
       },
       {
@@ -89,7 +89,7 @@ class _ToolsHubScreenState extends State<ToolsHubScreen> {
         'isNew': false,
         'badge': 'TUTOR',
         'gradient': const [Color(0xFF66BB6A), Color(0xFF2E7D32)],
-        'icon': Icons.school_rounded,
+        'iconWidget': RedesignIcons.toolStudy(size: 22, color: Colors.white),
         'screenBuilder': (BuildContext context) => const StudyAssistantScreen(),
       },
       {
@@ -100,7 +100,7 @@ class _ToolsHubScreenState extends State<ToolsHubScreen> {
         'isNew': false,
         'badge': 'DEV',
         'gradient': const [Color(0xFF26C6DA), Color(0xFF0097A7)],
-        'icon': Icons.code_rounded,
+        'iconWidget': RedesignIcons.toolCode(size: 22, color: Colors.white),
         'screenBuilder': (BuildContext context) => const CodeAssistantScreen(),
       },
       {
@@ -111,7 +111,7 @@ class _ToolsHubScreenState extends State<ToolsHubScreen> {
         'isNew': false,
         'badge': 'RECALL',
         'gradient': const [Color(0xFFFFCA28), Color(0xFFFFA000)],
-        'icon': Icons.auto_awesome_rounded,
+        'iconWidget': RedesignIcons.toolFlashcards(size: 22, color: Colors.white),
         'screenBuilder': (BuildContext context) => const FlashcardAssistantScreen(),
       },
     ];
@@ -503,7 +503,7 @@ class _ToolsHubScreenState extends State<ToolsHubScreen> {
                                   itemBuilder: (context, idx) {
                                     final tool = _filteredTools[idx];
                                     return ToolGridCard(
-                                      icon: tool['icon'] as IconData,
+                                      iconWidget: tool['iconWidget'] as Widget,
                                       title: tool['title'] as String,
                                       description: tool['description'] as String,
                                       badge: tool['badge'] as String,
@@ -535,7 +535,7 @@ class _ToolsHubScreenState extends State<ToolsHubScreen> {
 }
 
 class ToolGridCard extends StatelessWidget {
-  final IconData icon;
+  final Widget iconWidget;
   final String title;
   final String description;
   final String badge;
@@ -545,7 +545,7 @@ class ToolGridCard extends StatelessWidget {
 
   const ToolGridCard({
     super.key,
-    required this.icon,
+    required this.iconWidget,
     required this.title,
     required this.description,
     required this.badge,
@@ -615,7 +615,7 @@ class ToolGridCard extends StatelessWidget {
                     ],
                   ),
                   child: Center(
-                    child: Icon(icon, color: Colors.white, size: 23),
+                    child: iconWidget,
                   ),
                 ),
 
@@ -697,11 +697,10 @@ class ToolGridCard extends StatelessWidget {
                     color: const Color(0x38403226),
                     border: Border.all(color: const Color(0x24FFFFFF), width: 0.8),
                   ),
-                  child: const Center(
-                    child: Icon(
-                      Icons.arrow_forward_rounded,
-                      color: Color(0xFFBEB8B2),
-                      size: 15,
+                  child: Center(
+                    child: RedesignIcons.arrowRight(
+                      color: const Color(0xFFBEB8B2),
+                      size: 14,
                     ),
                   ),
                 ),

@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../screens/tools_hub_screen.dart';
 import '../screens/main_chat_assistant_screen.dart';
 import '../screens/settings_screen.dart';
+import 'redesign_icons.dart';
 
 class CustomBottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -78,9 +79,9 @@ class CustomBottomNavBar extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildNavItem(context, 0, Icons.grid_view_rounded, 'Tools'),
-              _buildNavItem(context, 1, Icons.chat_bubble_outline_rounded, 'Chat'),
-              _buildNavItem(context, 2, Icons.person_outline_rounded, 'Profile'),
+              _buildNavItem(context, 0, (color) => RedesignIcons.navTools(size: 23, color: color), 'Tools'),
+              _buildNavItem(context, 1, (color) => RedesignIcons.navChat(size: 23, color: color), 'Chat'),
+              _buildNavItem(context, 2, (color) => RedesignIcons.navProfile(size: 23, color: color), 'Profile'),
             ],
           ),
         ),
@@ -88,8 +89,9 @@ class CustomBottomNavBar extends StatelessWidget {
     );
   }
 
-  Widget _buildNavItem(BuildContext context, int index, IconData icon, String label) {
+  Widget _buildNavItem(BuildContext context, int index, Widget Function(Color color) iconBuilder, String label) {
     final bool isActive = currentIndex == index;
+    final color = isActive ? const Color(0xFFFF9233) : const Color(0xFF8E857D);
     return _NavBounceItem(
       onTap: () => _onItemTapped(context, index),
       child: AnimatedContainer(
@@ -115,11 +117,7 @@ class CustomBottomNavBar extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              color: isActive ? const Color(0xFFFF9233) : const Color(0xFF8E857D),
-              size: 24,
-            ),
+            iconBuilder(color),
             const SizedBox(height: 3),
             Text(
               label,
