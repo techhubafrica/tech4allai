@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:universal_html/html.dart' as html;
-import '../constants/colors.dart';
 import '../services/hugging_face_service.dart';
 import '../services/supabase_storage_service.dart';
 import '../services/subscription_service.dart';
@@ -211,21 +210,36 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
     showDialog(
       context: context,
       barrierDismissible: true,
+      barrierColor: Colors.black.withOpacity(0.75),
       builder: (BuildContext context) {
         return Dialog(
           backgroundColor: Colors.transparent,
           insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
           child: Container(
-            padding: const EdgeInsets.all(24),
+            constraints: const BoxConstraints(maxWidth: 480),
+            padding: const EdgeInsets.all(22),
             decoration: BoxDecoration(
-              color: const Color(0xFF1E1712),
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: const Color(0xFF3D3228)),
+              gradient: const RadialGradient(
+                center: Alignment(0.0, -0.6),
+                radius: 1.25,
+                colors: [
+                  Color(0xFF2E1F16), // Warm amber ambient glow
+                  Color(0xFF1E140E),
+                  Color(0xFF140D08), // Deep dark base
+                ],
+              ),
+              border: Border.all(color: const Color(0x4DFF9233), width: 1.2),
               boxShadow: [
+                const BoxShadow(
+                  color: Color(0x40FF7300),
+                  blurRadius: 30,
+                  offset: Offset(0, 4),
+                ),
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.6),
-                  blurRadius: 28,
-                  offset: const Offset(0, 10),
+                  color: Colors.black.withOpacity(0.65),
+                  blurRadius: 24,
+                  offset: const Offset(0, 8),
                 ),
               ],
             ),
@@ -233,101 +247,239 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Top Header with Squircle Badge & Close Button
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.15),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.edit_note_rounded,
-                        color: AppColors.primary,
-                        size: 24,
-                      ),
+                    Row(
+                      children: [
+                        Container(
+                          width: 42,
+                          height: 42,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            gradient: const LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [Color(0xFFFF9534), Color(0xFFFF6701)],
+                            ),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x66FF7300),
+                                blurRadius: 14,
+                                offset: Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: Center(
+                            child: RedesignIcons.edit(size: 19, color: Colors.white),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Revert & Edit Prompt',
+                              style: GoogleFonts.inter(
+                                fontSize: 17.5,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: -0.3,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Reverts thread & generates fresh response',
+                              style: GoogleFonts.inter(
+                                fontSize: 11.5,
+                                color: const Color(0xFF9E968F),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 12),
-                    Text(
-                      'Revert & Edit Prompt',
-                      style: GoogleFonts.inter(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                    // Close Circle Button
+                    BouncingButton(
+                      onTap: () => Navigator.pop(context),
+                      child: Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: const LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [Color(0x8C40362F), Color(0x8C261F1A)],
+                          ),
+                          border: Border.all(color: const Color(0x2EFFFFFF), width: 1.0),
+                        ),
+                        child: Center(
+                          child: RedesignIcons.close(size: 16, color: Colors.white70),
+                        ),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
-                Text(
-                  'Editing this prompt will revert the conversation to this point. All subsequent messages will be cleared, and a new AI response will be generated.',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: const Color(0xFF9E968F),
-                    height: 1.4,
+
+                const SizedBox(height: 14),
+
+                // Informational Warning Pill Banner
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: const Color(0x382D1F15),
+                    border: Border.all(color: const Color(0x33FF9838), width: 0.8),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 6,
+                        height: 6,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Color(0xFFFF9233),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Editing clears subsequent messages and starts a new AI response from this point.',
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            color: const Color(0xFFDDD2CA),
+                            height: 1.35,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 20),
+
+                const SizedBox(height: 16),
+
+                // Modern Glass Text Input Area
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF130D09),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: const Color(0xFF3D3228)),
+                    color: const Color(0x59291D15),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0x38FF9838), width: 1.1),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
                   child: TextField(
                     controller: textController,
-                    maxLines: 4,
-                    minLines: 2,
-                    style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
-                    decoration: const InputDecoration(
+                    autofocus: true,
+                    maxLines: 5,
+                    minLines: 3,
+                    style: GoogleFonts.inter(
+                      color: Colors.white,
+                      fontSize: 14.5,
+                      height: 1.4,
+                    ),
+                    cursorColor: const Color(0xFFFF9233),
+                    decoration: InputDecoration(
                       border: InputBorder.none,
+                      isDense: true,
                       hintText: 'Type your edited prompt here...',
-                      hintStyle: TextStyle(color: Colors.white30),
+                      hintStyle: GoogleFonts.inter(
+                        color: const Color(0xFF7E756E),
+                        fontSize: 14,
+                      ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 24),
+
+                const SizedBox(height: 22),
+
+                // Action Buttons Row (Cancel & Save & Resubmit)
                 Row(
                   children: [
+                    // Cancel Button
                     Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.pop(context),
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Color(0xFF3D3228)),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                      flex: 2,
+                      child: BouncingButton(
+                        onTap: () => Navigator.pop(context),
+                        child: Container(
+                          height: 46,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(14),
+                            gradient: const LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [Color(0x8C40362F), Color(0x8C261F1A)],
+                            ),
+                            border: Border.all(color: const Color(0x2EFFFFFF), width: 1.0),
                           ),
-                        ),
-                        child: Text(
-                          'Cancel',
-                          style: GoogleFonts.inter(color: Colors.white70),
+                          child: Center(
+                            child: Text(
+                              'Cancel',
+                              style: GoogleFonts.inter(
+                                color: const Color(0xFFD4C9C2),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
+
                     const SizedBox(width: 12),
+
+                    // Glowing Save & Resubmit Button
                     Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
+                      flex: 3,
+                      child: BouncingButton(
+                        onTap: () {
                           final newText = textController.text.trim();
                           if (newText.isNotEmpty && newText != originalText) {
                             Navigator.pop(context);
                             _regenerateResponse(index, newText);
                           }
                         },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          height: 46,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(14),
+                            gradient: const LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [Color(0xFFFF9534), Color(0xFFFF6701)],
+                            ),
+                            border: Border.all(color: const Color(0x80FFE1B9), width: 1.0),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x66FF7300),
+                                blurRadius: 16,
+                                offset: Offset(0, 4),
+                              ),
+                            ],
                           ),
-                        ),
-                        child: Text(
-                          'Save & Resubmit',
-                          style: GoogleFonts.inter(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              RedesignIcons.send(size: 16, color: Colors.white),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Resubmit',
+                                style: GoogleFonts.inter(
+                                  color: Colors.white,
+                                  fontSize: 14.5,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: -0.2,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
