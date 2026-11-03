@@ -196,7 +196,7 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
     showDialog(
       context: context,
       barrierDismissible: true,
-      barrierColor: Colors.black.withOpacity(0.75),
+      barrierColor: Colors.black.withValues(alpha: 0.78),
       builder: (BuildContext context) {
         return Dialog(
           backgroundColor: Colors.transparent,
@@ -205,27 +205,27 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
             constraints: const BoxConstraints(maxWidth: 480),
             padding: const EdgeInsets.all(22),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(26),
               gradient: const RadialGradient(
-                center: Alignment(0.0, -0.6),
-                radius: 1.25,
+                center: Alignment(0.0, -0.65),
+                radius: 1.35,
                 colors: [
-                  Color(0xFF2E1F16), // Warm amber ambient glow
+                  Color(0xFF332014), // Warm amber ambient glow
                   Color(0xFF1E140E),
-                  Color(0xFF140D08), // Deep dark base
+                  Color(0xFF110B07), // Obsidian base
                 ],
               ),
-              border: Border.all(color: const Color(0x4DFF9233), width: 1.2),
+              border: Border.all(color: const Color(0x66FF8A24), width: 1.3),
               boxShadow: [
                 const BoxShadow(
-                  color: Color(0x40FF7300),
-                  blurRadius: 30,
-                  offset: Offset(0, 4),
+                  color: Color(0x4DFF7300),
+                  blurRadius: 36,
+                  offset: Offset(0, 6),
                 ),
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.65),
-                  blurRadius: 24,
-                  offset: const Offset(0, 8),
+                  color: Colors.black.withValues(alpha: 0.75),
+                  blurRadius: 28,
+                  offset: const Offset(0, 10),
                 ),
               ],
             ),
@@ -801,38 +801,63 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
                 // 6. FLOATING TOAST NOTIFICATION
                 if (_toastMessage != null)
                   Positioned(
-                    top: 16,
+                    top: 18,
                     left: 20,
                     right: 20,
                     child: Center(
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          gradient: const LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Color(0xA640362F),
-                              Color(0xA6261F1A),
-                            ],
-                          ),
-                          border: Border.all(color: const Color(0x4DEEAF37), width: 1.0),
+                          borderRadius: BorderRadius.circular(24),
+                          color: const Color(0xFF1C130D),
+                          border: Border.all(color: const Color(0x66FF9233), width: 1.2),
                           boxShadow: [
+                            const BoxShadow(
+                              color: Color(0x38FF7300),
+                              blurRadius: 20,
+                              offset: Offset(0, 4),
+                            ),
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.4),
-                              blurRadius: 16,
-                              offset: const Offset(0, 4),
+                              color: Colors.black.withValues(alpha: 0.5),
+                              blurRadius: 14,
+                              offset: const Offset(0, 6),
                             ),
                           ],
                         ),
-                        child: Text(
-                          _toastMessage!,
-                          style: GoogleFonts.inter(
-                            color: const Color(0xFFFFE082),
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                          ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 24,
+                              height: 24,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(7),
+                                gradient: const LinearGradient(
+                                  colors: [Color(0xFFFFA438), Color(0xFFFF6A00)],
+                                ),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Color(0x66FF7300),
+                                    blurRadius: 8,
+                                  ),
+                                ],
+                              ),
+                              child: Center(
+                                child: RedesignIcons.aiSparkles(size: 13, color: Colors.white),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Flexible(
+                              child: Text(
+                                _toastMessage!,
+                                style: GoogleFonts.inter(
+                                  color: Colors.white,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),

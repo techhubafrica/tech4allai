@@ -44,25 +44,58 @@ class _SettingsScreenState extends State<SettingsScreen> {
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Row(
-          children: [
-            RedesignIcons.lightning(size: 16, color: const Color(0xFFFF9438)),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                '$title is currently under development.',
-                style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 13),
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: const Color(0xFF1E140C),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
-          side: const BorderSide(color: Color(0x4DFF7300), width: 1.2),
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         duration: const Duration(seconds: 2),
+        content: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E140C),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: const Color(0x66FF7300), width: 1.2),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x38FF7300),
+                blurRadius: 20,
+                offset: Offset(0, 6),
+              ),
+              BoxShadow(
+                color: Colors.black54,
+                blurRadius: 12,
+                offset: Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: const Color(0x33FF7300),
+                  border: Border.all(color: const Color(0x66FF7300), width: 1),
+                ),
+                child: Center(
+                  child: RedesignIcons.lightning(size: 16, color: const Color(0xFFFF9438)),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  '$title is currently under development.',
+                  style: GoogleFonts.inter(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -228,56 +261,164 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         onTap: () async {
                           final shouldSignOut = await showDialog<bool>(
                             context: context,
-                            builder: (context) => AlertDialog(
-                              backgroundColor: const Color(0xFF1E140C),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                                side: const BorderSide(color: Color(0x33FF7300), width: 1.2),
-                              ),
-                              title: Row(
-                                children: [
-                                  RedesignIcons.logout(size: 20, color: const Color(0xFFFF5252)),
-                                  const SizedBox(width: 10),
-                                  Text(
-                                    'Confirm Sign Out',
-                                    style: GoogleFonts.inter(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                      fontSize: 16,
+                            barrierDismissible: true,
+                            barrierColor: Colors.black.withValues(alpha: 0.78),
+                            builder: (context) => Dialog(
+                              backgroundColor: Colors.transparent,
+                              insetPadding: const EdgeInsets.symmetric(horizontal: 22, vertical: 24),
+                              child: Container(
+                                constraints: const BoxConstraints(maxWidth: 400),
+                                padding: const EdgeInsets.fromLTRB(22, 22, 22, 20),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(26),
+                                  gradient: const RadialGradient(
+                                    center: Alignment(0.0, -0.7),
+                                    radius: 1.3,
+                                    colors: [
+                                      Color(0xFF2C1310),
+                                      Color(0xFF1B0E0A),
+                                      Color(0xFF120A07),
+                                    ],
+                                  ),
+                                  border: Border.all(color: const Color(0x66FF3B30), width: 1.3),
+                                  boxShadow: [
+                                    const BoxShadow(
+                                      color: Color(0x4DFF3B30),
+                                      blurRadius: 36,
+                                      offset: Offset(0, 8),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              content: Text(
-                                'Are you sure you want to log out from this device?',
-                                style: GoogleFonts.inter(
-                                  color: const Color(0xFFD4CFC9),
-                                  fontSize: 14,
-                                ),
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context, false),
-                                  child: Text(
-                                    'Cancel',
-                                    style: GoogleFonts.inter(color: const Color(0xFF8E857D), fontWeight: FontWeight.w600),
-                                  ),
-                                ),
-                                ElevatedButton(
-                                  onPressed: () => Navigator.pop(context, true),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFFFF3B30),
-                                    foregroundColor: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.8),
+                                      blurRadius: 28,
+                                      offset: const Offset(0, 12),
                                     ),
-                                  ),
-                                  child: Text(
-                                    'Log Out',
-                                    style: GoogleFonts.inter(fontWeight: FontWeight.bold),
-                                  ),
+                                  ],
                                 ),
-                              ],
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    // Top Squircle Danger Emblem
+                                    Container(
+                                      width: 58,
+                                      height: 58,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(18),
+                                        gradient: const LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                          colors: [Color(0xFFFF5252), Color(0xFFD32F2F)],
+                                        ),
+                                        boxShadow: const [
+                                          BoxShadow(
+                                            color: Color(0x80FF3B30),
+                                            blurRadius: 20,
+                                            offset: Offset(0, 4),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Center(
+                                        child: RedesignIcons.logout(size: 26, color: Colors.white),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 18),
+                                    Text(
+                                      'Confirm Sign Out',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 19,
+                                        fontWeight: FontWeight.w800,
+                                        color: Colors.white,
+                                        letterSpacing: -0.3,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Are you sure you want to log out? Your active session on this device will be securely terminated.',
+                                      textAlign: TextAlign.center,
+                                      style: GoogleFonts.inter(
+                                        fontSize: 13.5,
+                                        color: const Color(0xFFD2C7BD),
+                                        height: 1.45,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 22),
+                                    Row(
+                                      children: [
+                                        // Cancel Button
+                                        Expanded(
+                                          flex: 2,
+                                          child: _SettingsBounceButton(
+                                            onTap: () => Navigator.pop(context, false),
+                                            child: Container(
+                                              height: 44,
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(14),
+                                                gradient: const LinearGradient(
+                                                  begin: Alignment.topCenter,
+                                                  end: Alignment.bottomCenter,
+                                                  colors: [Color(0x8C40362F), Color(0x8C261F1A)],
+                                                ),
+                                                border: Border.all(color: const Color(0x2EFFFFFF), width: 1.0),
+                                              ),
+                                              child: Center(
+                                                child: Text(
+                                                  'Cancel',
+                                                  style: GoogleFonts.inter(
+                                                    color: const Color(0xFFD4C9C2),
+                                                    fontSize: 13.5,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        // Confirm Log Out Button
+                                        Expanded(
+                                          flex: 3,
+                                          child: _SettingsBounceButton(
+                                            onTap: () => Navigator.pop(context, true),
+                                            child: Container(
+                                              height: 44,
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(14),
+                                                gradient: const LinearGradient(
+                                                  begin: Alignment.topLeft,
+                                                  end: Alignment.bottomRight,
+                                                  colors: [Color(0xFFFF453A), Color(0xFFD32F2F)],
+                                                ),
+                                                border: Border.all(color: const Color(0x80FFAAAA), width: 1.0),
+                                                boxShadow: const [
+                                                  BoxShadow(
+                                                    color: Color(0x66FF3B30),
+                                                    blurRadius: 18,
+                                                    offset: Offset(0, 4),
+                                                  ),
+                                                ],
+                                              ),
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                children: [
+                                                  RedesignIcons.logout(size: 16, color: Colors.white),
+                                                  const SizedBox(width: 6),
+                                                  Text(
+                                                    'Log Out',
+                                                    style: GoogleFonts.inter(
+                                                      fontSize: 14,
+                                                      fontWeight: FontWeight.bold,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
                           );
 
