@@ -48,9 +48,6 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
 
   final SubscriptionService _subscriptionService = SubscriptionService();
   String _userTier = 'FREE';
-  int _textRequestsToday = 0;
-  int _textRequestsLimit = 5;
-  bool _isLoadingLimitInfo = true;
 
   final ImagePicker _picker = ImagePicker();
   final SupabaseStorageService _storageService = SupabaseStorageService();
@@ -121,17 +118,6 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
     if (mounted && sub != null) {
       setState(() {
         _userTier = sub['tier'] ?? 'FREE';
-        _textRequestsToday = sub['text_requests_today'] ?? 0;
-        if (_userTier == 'BASIC') {
-          _textRequestsLimit = 50;
-        } else if (_userTier == 'PRO') {
-          _textRequestsLimit = 150;
-        } else if (_userTier == 'SUPERADMIN') {
-          _textRequestsLimit = 999999;
-        } else {
-          _textRequestsLimit = 5;
-        }
-        _isLoadingLimitInfo = false;
 
         // Reset if user is free but selected pro model
         if (_userTier == 'FREE' && _selectedModel == 'Sonder 0.1 Pro') {
@@ -767,16 +753,10 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
                     // 1. TOP HEADER BAR
                     _buildHeaderBar(),
 
-                    // 2. MODEL SELECTOR & TAGLINE
+                    // 2. MODEL SELECTOR
                     _buildModelSwitcher(),
 
-                    // Account Plan & Limits Info
-                    _buildPlanLimitsBar(),
-
-                    // 3. HORIZONTAL QUICK-ACTION PILLS
-                    _buildQuickActionChips(),
-
-                    // 4. CHAT MESSAGES AREA
+                    // 3. CHAT MESSAGES AREA
                     Expanded(
                       child: _isLoadingMessages
                           ? const Center(
@@ -1000,353 +980,170 @@ class _MainChatAssistantScreenState extends State<MainChatAssistantScreen> {
     );
   }
 
-  // --- MODEL SEGMENTED SWITCHER & TAGLINE ---
+  // --- MODEL SEGMENTED SWITCHER ---
   Widget _buildModelSwitcher() {
     final isPro = _selectedModel == 'Sonder 0.1 Pro';
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      child: Column(
-        children: [
-          // Selector Track (selector-track)
-          Container(
-            padding: const EdgeInsets.all(5),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(30),
-              color: const Color(0xD1221B16), // rgba(34, 27, 22, 0.82)
-              border: Border.all(color: const Color(0x1CFFFFFF), width: 1.0),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.35),
-                  blurRadius: 20,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                // Standard Model Tab
-                Expanded(
-                  child: BouncingButton(
-                    onTap: () {
-                      if (_selectedModel != 'Sonder 0.1') {
-                        setState(() => _selectedModel = 'Sonder 0.1');
-                      }
-                    },
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 250),
-                      curve: Curves.easeOutCubic,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(22),
-                        gradient: !isPro
-                            ? const LinearGradient(
-                                colors: [
-                                  Color(0xFFFF981A),
-                                  Color(0xFFFF7300),
-                                  Color(0xFFFF5E00),
-                                ],
-                                stops: [0.0, 0.55, 1.0],
-                              )
-                            : null,
-                        border: !isPro
-                            ? Border.all(color: const Color(0x73FFE1B9), width: 1.0)
-                            : null,
-                        boxShadow: !isPro
-                            ? [
-                                const BoxShadow(
-                                  color: Color(0xA6FF7800),
-                                  blurRadius: 22,
-                                ),
-                                const BoxShadow(
-                                  color: Color(0x47FF6400),
-                                  blurRadius: 40,
-                                ),
-                              ]
-                            : null,
-                      ),
-                      child: Center(
-                        child: Text(
-                          'Sonder 0.1',
-                          style: GoogleFonts.inter(
-                            fontSize: 15.5,
-                            fontWeight: !isPro ? FontWeight.bold : FontWeight.w600,
-                            letterSpacing: -0.2,
-                            color: !isPro ? Colors.white : const Color(0xD9FFFFFF),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-
-                // Pro Model Tab
-                Expanded(
-                  child: BouncingButton(
-                    onTap: () {
-                      if (_userTier == 'FREE') {
-                        UpgradePromptDialog.show(
-                          context,
-                          title: "Pro Model Restricted",
-                          message: "The Sonder 0.1 Pro (70B) reasoning model is exclusive to BASIC and PRO tiers. Upgrade now to unlock premium model access!",
-                        );
-                      } else {
-                        if (_selectedModel != 'Sonder 0.1 Pro') {
-                          setState(() => _selectedModel = 'Sonder 0.1 Pro');
-                        }
-                      }
-                    },
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 250),
-                      curve: Curves.easeOutCubic,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(22),
-                        gradient: isPro
-                            ? const LinearGradient(
-                                colors: [
-                                  Color(0xFFFF981A),
-                                  Color(0xFFFF7300),
-                                  Color(0xFFFF5E00),
-                                ],
-                                stops: [0.0, 0.55, 1.0],
-                              )
-                            : null,
-                        border: isPro
-                            ? Border.all(color: const Color(0x73FFE1B9), width: 1.0)
-                            : null,
-                        boxShadow: isPro
-                            ? [
-                                const BoxShadow(
-                                  color: Color(0xA6FF7800),
-                                  blurRadius: 22,
-                                ),
-                                const BoxShadow(
-                                  color: Color(0x47FF6400),
-                                  blurRadius: 40,
-                                ),
-                              ]
-                            : null,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Sonder 0.1 Pro',
-                            style: GoogleFonts.inter(
-                              fontSize: 15.0,
-                              fontWeight: isPro ? FontWeight.bold : FontWeight.w600,
-                              letterSpacing: -0.2,
-                              color: isPro ? Colors.white : const Color(0xD9FFFFFF),
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              color: const Color(0x2EB97D14), // rgba(185, 125, 20, 0.18)
-                              border: Border.all(color: const Color(0xA6EEAF37), width: 1.0),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Color(0x26EEAF37),
-                                  blurRadius: 10,
-                                ),
-                              ],
-                            ),
-                            child: Text(
-                              'PRO',
-                              style: GoogleFonts.inter(
-                                fontSize: 10.5,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 0.8,
-                                color: const Color(0xFFF6C15C),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Subtitle Tagline
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 10, 16, 2),
-            child: RichText(
-              textAlign: TextAlign.center,
-              text: TextSpan(
-                style: GoogleFonts.inter(
-                  fontSize: 13.2,
-                  fontStyle: FontStyle.italic,
-                  color: const Color(0xFF9E968F),
-                  height: 1.35,
-                ),
-                children: [
-                  TextSpan(
-                    text: isPro ? '✨ ' : '⚡ ',
-                    style: const TextStyle(
-                      fontStyle: FontStyle.normal,
-                      color: Color(0xFFFFB042),
-                      shadows: [
-                        Shadow(
-                          color: Color(0x99FF9500),
-                          blurRadius: 6,
-                        ),
-                      ],
-                    ),
-                  ),
-                  TextSpan(
-                    text: isPro
-                        ? 'Sonder 0.1 Pro (70B parameters) • Deep reasoning &\ncomplex problem solving'
-                        : 'Sonder 0.1 (20B parameters) • Fast, responsive\neveryday help',
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // --- ACCOUNT PLAN & DAILY LIMITS ---
-  Widget _buildPlanLimitsBar() {
-    if (_isLoadingLimitInfo) return const SizedBox.shrink();
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            'Account Plan: $_userTier',
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              color: _userTier == 'SUPERADMIN' ? Colors.cyanAccent : const Color(0xFF9E968F),
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Text(
-            _userTier == 'SUPERADMIN'
-                ? 'Daily Limit: Unlimited'
-                : 'Daily Limit: $_textRequestsToday / $_textRequestsLimit queries',
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              color: _userTier == 'SUPERADMIN'
-                  ? Colors.cyanAccent
-                  : (_textRequestsToday >= _textRequestsLimit
-                      ? Colors.redAccent
-                      : const Color(0xFF9E968F)),
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // --- HORIZONTAL QUICK-ACTION PILLS ---
-  Widget _buildQuickActionChips() {
-    return Container(
-      height: 48,
-      margin: const EdgeInsets.only(top: 8, bottom: 6),
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        children: [
-          _buildActionChip(
-            icon: RedesignIcons.plan(
-              size: 17,
-              color: const Color(0xFFF5923E),
-            ),
-            label: 'Help me Plan',
-            prompt: 'Help me plan my week effectively with priorities',
-          ),
-          const SizedBox(width: 10),
-          _buildActionChip(
-            icon: RedesignIcons.email(
-              size: 17,
-              color: const Color(0xFFF5923E),
-            ),
-            label: 'Write an Email',
-            prompt: 'Write a professional follow-up email to a client',
-          ),
-          const SizedBox(width: 10),
-          _buildActionChip(
-            icon: const Text(
-              'π',
-              style: TextStyle(
-                fontFamily: 'Times New Roman',
-                fontSize: 19,
-                color: Color(0xFFF5923E),
-                height: 1.0,
-              ),
-            ),
-            label: 'Solve Math',
-            prompt: 'Solve a step-by-step calculus or algebra problem',
-          ),
-          const SizedBox(width: 10),
-          _buildActionChip(
-            icon: RedesignIcons.code(
-              size: 17,
-              color: const Color(0xFFF5923E),
-            ),
-            label: 'Code & Logic',
-            prompt: 'Write a clean Python script to automate file sorting',
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActionChip({
-    required Widget icon,
-    required String label,
-    required String prompt,
-  }) {
-    return BouncingButton(
-      onTap: () => _sendMessage(predefinedText: prompt),
+      padding: const EdgeInsets.fromLTRB(16, 2, 16, 4),
       child: Container(
-        height: 48,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.all(5),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(24),
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xB8302319), // rgba(48, 35, 25, 0.72)
-              Color(0xE01C140F), // rgba(28, 20, 15, 0.88)
-            ],
-          ),
-          border: Border.all(color: const Color(0x8CEB8A34), width: 1.2), // rgba(235, 138, 52, 0.55)
+          borderRadius: BorderRadius.circular(30),
+          color: const Color(0xD1221B16), // rgba(34, 27, 22, 0.82)
+          border: Border.all(color: const Color(0x1CFFFFFF), width: 1.0),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.4),
-              blurRadius: 14,
+              color: Colors.black.withValues(alpha: 0.35),
+              blurRadius: 20,
               offset: const Offset(0, 4),
-            ),
-            const BoxShadow(
-              color: Color(0x1AFF7A00),
-              blurRadius: 12,
             ),
           ],
         ),
         child: Row(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            icon,
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: const Color(0xF2FFFFFF),
+            // Standard Model Tab
+            Expanded(
+              child: BouncingButton(
+                onTap: () {
+                  if (_selectedModel != 'Sonder 0.1') {
+                    setState(() => _selectedModel = 'Sonder 0.1');
+                  }
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  curve: Curves.easeOutCubic,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(22),
+                    gradient: !isPro
+                        ? const LinearGradient(
+                            colors: [
+                              Color(0xFFFF981A),
+                              Color(0xFFFF7300),
+                              Color(0xFFFF5E00),
+                            ],
+                            stops: [0.0, 0.55, 1.0],
+                          )
+                        : null,
+                    border: !isPro
+                        ? Border.all(color: const Color(0x73FFE1B9), width: 1.0)
+                        : null,
+                    boxShadow: !isPro
+                        ? [
+                            const BoxShadow(
+                              color: Color(0xA6FF7800),
+                              blurRadius: 22,
+                            ),
+                            const BoxShadow(
+                              color: Color(0x47FF6400),
+                              blurRadius: 40,
+                            ),
+                          ]
+                        : null,
+                  ),
+                  child: Center(
+                    child: Text(
+                      'Sonder 0.1',
+                      style: GoogleFonts.inter(
+                        fontSize: 15.5,
+                        fontWeight: !isPro ? FontWeight.bold : FontWeight.w600,
+                        letterSpacing: -0.2,
+                        color: !isPro ? Colors.white : const Color(0xD9FFFFFF),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            // Pro Model Tab
+            Expanded(
+              child: BouncingButton(
+                onTap: () {
+                  if (_userTier == 'FREE') {
+                    UpgradePromptDialog.show(
+                      context,
+                      title: "Pro Model Restricted",
+                      message: "The Sonder 0.1 Pro (70B) reasoning model is exclusive to BASIC and PRO tiers. Upgrade now to unlock premium model access!",
+                    );
+                  } else {
+                    if (_selectedModel != 'Sonder 0.1 Pro') {
+                      setState(() => _selectedModel = 'Sonder 0.1 Pro');
+                    }
+                  }
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  curve: Curves.easeOutCubic,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(22),
+                    gradient: isPro
+                        ? const LinearGradient(
+                            colors: [
+                              Color(0xFFFF981A),
+                              Color(0xFFFF7300),
+                              Color(0xFFFF5E00),
+                            ],
+                            stops: [0.0, 0.55, 1.0],
+                          )
+                        : null,
+                    border: isPro
+                        ? Border.all(color: const Color(0x73FFE1B9), width: 1.0)
+                        : null,
+                    boxShadow: isPro
+                        ? [
+                            const BoxShadow(
+                              color: Color(0xA6FF7800),
+                              blurRadius: 22,
+                            ),
+                            const BoxShadow(
+                              color: Color(0x47FF6400),
+                              blurRadius: 40,
+                            ),
+                          ]
+                        : null,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Sonder 0.1 Pro',
+                        style: GoogleFonts.inter(
+                          fontSize: 15.0,
+                          fontWeight: isPro ? FontWeight.bold : FontWeight.w600,
+                          letterSpacing: -0.2,
+                          color: isPro ? Colors.white : const Color(0xD9FFFFFF),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          color: const Color(0x2EB97D14), // rgba(185, 125, 20, 0.18)
+                          border: Border.all(color: const Color(0xA6EEAF37), width: 1.0),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color(0x26EEAF37),
+                              blurRadius: 10,
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          'PRO',
+                          style: GoogleFonts.inter(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.8,
+                            color: const Color(0xFFF6C15C),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ],
