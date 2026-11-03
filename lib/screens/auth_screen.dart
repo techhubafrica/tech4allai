@@ -1,10 +1,9 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../constants/colors.dart';
 import '../services/subscription_service.dart';
 import '../widgets/auth_guard.dart';
+import '../widgets/redesign_icons.dart';
 import 'tools_hub_screen.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -58,29 +57,47 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
   }
 
   void _showError(String message) {
+    ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          message,
-          style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w500),
+        content: Row(
+          children: [
+            RedesignIcons.close(size: 16, color: Colors.white),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                message,
+                style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 13),
+              ),
+            ),
+          ],
         ),
-        backgroundColor: Colors.redAccent,
+        backgroundColor: const Color(0xFFD32F2F),
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
     );
   }
 
   void _showSuccess(String message) {
+    ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          message,
-          style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w500),
+        content: Row(
+          children: [
+            const Icon(Icons.check_circle_rounded, color: Colors.white, size: 18),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                message,
+                style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 13),
+              ),
+            ),
+          ],
         ),
-        backgroundColor: Colors.green,
+        backgroundColor: const Color(0xFF2E7D32),
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
     );
   }
@@ -170,7 +187,6 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
       }
 
       if (response.session == null && response.user != null) {
-        // Verification email with OTP was sent
         setState(() {
           _isOtpSent = true;
           _otpEmail = email;
@@ -220,22 +236,48 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark,
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 420),
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  child: _isOtpSent ? _buildOtpView() : _buildTabsView(),
+      backgroundColor: const Color(0xFF0F0A06),
+      body: Stack(
+        children: [
+          // Ambient Glow Orb matching redesign
+          Positioned(
+            top: -120,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Container(
+                width: 620,
+                height: 420,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      Color(0x38FF7300),
+                      Color(0x14FF7300),
+                      Colors.transparent,
+                    ],
+                    stops: [0.0, 0.45, 1.0],
+                  ),
                 ),
               ),
             ),
           ),
-        ),
+
+          SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 440),
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    child: _isOtpSent ? _buildOtpView() : _buildTabsView(),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -245,111 +287,195 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
       key: const ValueKey('tabs_view'),
       mainAxisSize: MainAxisSize.min,
       children: [
-        // App Logo Icon
+        // Squircle Glowing Logo Badge
         Container(
-          width: 70,
-          height: 70,
+          width: 74,
+          height: 74,
           decoration: BoxDecoration(
-            color: AppColors.primary,
-            borderRadius: BorderRadius.circular(18),
-            boxShadow: [
+            borderRadius: BorderRadius.circular(22),
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFFFFA438), Color(0xFFFF6A00)],
+            ),
+            border: Border.all(color: const Color(0x8CFFE6C3), width: 1.1),
+            boxShadow: const [
               BoxShadow(
-                color: AppColors.primary.withOpacity(0.4),
-                blurRadius: 16,
-                offset: const Offset(0, 4),
-              )
+                color: Color(0x73FF7300),
+                blurRadius: 28,
+                offset: Offset(0, 6),
+              ),
             ],
           ),
           child: Center(
             child: Text(
               'T',
               style: GoogleFonts.inter(
-                fontSize: 36,
+                fontSize: 38,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
+                letterSpacing: -0.8,
               ),
             ),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 18),
         Text(
           'Tech4All AI',
           style: GoogleFonts.inter(
             fontSize: 28,
             fontWeight: FontWeight.bold,
+            letterSpacing: -0.5,
             color: Colors.white,
-            letterSpacing: 0.5,
           ),
         ),
-        const SizedBox(height: 8),
-        Text(
-          'Your smart space for everyday tasks',
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            color: AppColors.neutralTextMuted,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 32),
-
-        // Glassmorphism Card Container
-        ClipRRect(
-          borderRadius: BorderRadius.circular(24),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: AppColors.neutralSurface.withOpacity(0.75),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: AppColors.neutralBorder.withOpacity(0.5)),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Tab Buttons
-                  Container(
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: AppColors.backgroundDark.withOpacity(0.5),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: AppColors.neutralBorder.withOpacity(0.3)),
-                    ),
-                    child: TabBar(
-                      controller: _tabController,
-                      indicatorSize: TabBarIndicatorSize.tab,
-                      indicator: BoxDecoration(
-                        color: AppColors.primary,
-                        borderRadius: BorderRadius.circular(11),
-                      ),
-                      labelColor: Colors.white,
-                      unselectedLabelColor: AppColors.neutralTextMuted,
-                      labelStyle: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 14),
-                      unselectedLabelStyle: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: 14),
-                      dividerColor: Colors.transparent,
-                      tabs: const [
-                        Tab(text: 'Log In'),
-                        Tab(text: 'Sign Up'),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 28),
-
-                  // Tab Views
-                  SizedBox(
-                    height: 320,
-                    child: TabBarView(
-                      controller: _tabController,
-                      physics: const NeverScrollableScrollPhysics(),
-                      children: [
-                        _buildLoginForm(),
-                        _buildSignupForm(),
-                      ],
-                    ),
-                  ),
-                ],
+        const SizedBox(height: 6),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            RedesignIcons.lightning(size: 14, color: const Color(0xFFFF9233)),
+            const SizedBox(width: 5),
+            Text(
+              'Your intelligent workspace for everyday tasks',
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                color: const Color(0xFF9E968F),
               ),
             ),
+          ],
+        ),
+        const SizedBox(height: 28),
+
+        // Glassmorphic Card Container
+        Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(26),
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0x8C302117), // Warm amber glass
+                Color(0x991C140D),
+              ],
+            ),
+            border: Border.all(color: const Color(0x2BFFFFFF), width: 1.0),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.4),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+              ),
+              const BoxShadow(
+                color: Color(0x1FFF7300),
+                blurRadius: 18,
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Capsule Switcher Track (selector-track style)
+              Container(
+                height: 48,
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: const Color(0x59291D15),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: const Color(0x24FFFFFF), width: 1.0),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _AuthBounceButton(
+                        onTap: () {
+                          _tabController.animateTo(0);
+                          setState(() {});
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            gradient: _tabController.index == 0
+                                ? const LinearGradient(
+                                    colors: [Color(0xFFFF9534), Color(0xFFFF6701)],
+                                  )
+                                : null,
+                            boxShadow: _tabController.index == 0
+                                ? const [
+                                    BoxShadow(
+                                      color: Color(0x66FF7300),
+                                      blurRadius: 14,
+                                      offset: Offset(0, 2),
+                                    ),
+                                  ]
+                                : null,
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            'Log In',
+                            style: GoogleFonts.inter(
+                              color: _tabController.index == 0 ? Colors.white : const Color(0xFFBEB8B2),
+                              fontWeight: _tabController.index == 0 ? FontWeight.bold : FontWeight.w500,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: _AuthBounceButton(
+                        onTap: () {
+                          _tabController.animateTo(1);
+                          setState(() {});
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            gradient: _tabController.index == 1
+                                ? const LinearGradient(
+                                    colors: [Color(0xFFFF9534), Color(0xFFFF6701)],
+                                  )
+                                : null,
+                            boxShadow: _tabController.index == 1
+                                ? const [
+                                    BoxShadow(
+                                      color: Color(0x66FF7300),
+                                      blurRadius: 14,
+                                      offset: Offset(0, 2),
+                                    ),
+                                  ]
+                                : null,
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            'Sign Up',
+                            style: GoogleFonts.inter(
+                              color: _tabController.index == 1 ? Colors.white : const Color(0xFFBEB8B2),
+                              fontWeight: _tabController.index == 1 ? FontWeight.bold : FontWeight.w500,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Animated Form View
+              AnimatedCrossFade(
+                firstChild: _buildLoginForm(),
+                secondChild: _buildSignupForm(),
+                crossFadeState: _tabController.index == 0
+                    ? CrossFadeState.showFirst
+                    : CrossFadeState.showSecond,
+                duration: const Duration(milliseconds: 250),
+              ),
+            ],
           ),
         ),
       ],
@@ -366,7 +492,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
             controller: _loginEmailController,
             label: 'Email Address',
             hint: 'email@example.com',
-            icon: Icons.email_outlined,
+            prefixWidget: RedesignIcons.email(size: 17, color: const Color(0xFF8E857D)),
             keyboardType: TextInputType.emailAddress,
             validator: (value) {
               if (value == null || value.trim().isEmpty) return 'Email is required';
@@ -376,51 +502,63 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
               return null;
             },
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
           _buildTextField(
             controller: _loginPasswordController,
             label: 'Password',
             hint: '••••••••',
-            icon: Icons.lock_outline,
+            prefixWidget: RedesignIcons.lock(size: 17, color: const Color(0xFF8E857D)),
             obscureText: _obscureLoginPassword,
-            suffixIcon: IconButton(
-              icon: Icon(
-                _obscureLoginPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                color: AppColors.neutralTextMuted,
-                size: 20,
+            suffixWidget: GestureDetector(
+              onTap: () => setState(() => _obscureLoginPassword = !_obscureLoginPassword),
+              child: Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: _obscureLoginPassword
+                    ? RedesignIcons.eyeOff(size: 18, color: const Color(0xFF8E857D))
+                    : RedesignIcons.eye(size: 18, color: const Color(0xFFFF9233)),
               ),
-              onPressed: () => setState(() => _obscureLoginPassword = !_obscureLoginPassword),
             ),
             validator: (value) {
               if (value == null || value.isEmpty) return 'Password is required';
               return null;
             },
           ),
-          const Spacer(),
-          SizedBox(
-            width: double.infinity,
-            height: 52,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                elevation: 0,
+          const SizedBox(height: 24),
+          _AuthBounceButton(
+            onTap: _isLoading ? () {} : _handleLogin,
+            child: Container(
+              width: double.infinity,
+              height: 50,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFFF9534), Color(0xFFFF6701)],
+                ),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x66FF7300),
+                    blurRadius: 16,
+                    offset: Offset(0, 4),
+                  ),
+                ],
               ),
-              onPressed: _isLoading ? null : _handleLogin,
-              child: _isLoading
-                  ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
-                    )
-                  : Text(
-                      'Log In',
-                      style: GoogleFonts.inter(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+              child: Center(
+                child: _isLoading
+                    ? const SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(strokeWidth: 2.2, color: Colors.white),
+                      )
+                    : Text(
+                        'Log In',
+                        style: GoogleFonts.inter(
+                          fontSize: 15.5,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          letterSpacing: -0.2,
+                        ),
                       ),
-                    ),
+              ),
             ),
           ),
         ],
@@ -438,7 +576,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
             controller: _signupNameController,
             label: 'Full Name',
             hint: 'John Doe',
-            icon: Icons.person_outline,
+            prefixWidget: RedesignIcons.navProfile(size: 17, color: const Color(0xFF8E857D)),
             validator: (value) {
               if (value == null || value.trim().isEmpty) return 'Name is required';
               return null;
@@ -449,7 +587,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
             controller: _signupEmailController,
             label: 'Email Address',
             hint: 'email@example.com',
-            icon: Icons.email_outlined,
+            prefixWidget: RedesignIcons.email(size: 17, color: const Color(0xFF8E857D)),
             keyboardType: TextInputType.emailAddress,
             validator: (value) {
               if (value == null || value.trim().isEmpty) return 'Email is required';
@@ -464,15 +602,16 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
             controller: _signupPasswordController,
             label: 'Password',
             hint: '•••••••• (Min. 6 chars)',
-            icon: Icons.lock_outline,
+            prefixWidget: RedesignIcons.lock(size: 17, color: const Color(0xFF8E857D)),
             obscureText: _obscureSignupPassword,
-            suffixIcon: IconButton(
-              icon: Icon(
-                _obscureSignupPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                color: AppColors.neutralTextMuted,
-                size: 20,
+            suffixWidget: GestureDetector(
+              onTap: () => setState(() => _obscureSignupPassword = !_obscureSignupPassword),
+              child: Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: _obscureSignupPassword
+                    ? RedesignIcons.eyeOff(size: 18, color: const Color(0xFF8E857D))
+                    : RedesignIcons.eye(size: 18, color: const Color(0xFFFF9233)),
               ),
-              onPressed: () => setState(() => _obscureSignupPassword = !_obscureSignupPassword),
             ),
             validator: (value) {
               if (value == null || value.isEmpty) return 'Password is required';
@@ -480,31 +619,42 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
               return null;
             },
           ),
-          const Spacer(),
-          SizedBox(
-            width: double.infinity,
-            height: 52,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                elevation: 0,
+          const SizedBox(height: 24),
+          _AuthBounceButton(
+            onTap: _isLoading ? () {} : _handleSignup,
+            child: Container(
+              width: double.infinity,
+              height: 50,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFFF9534), Color(0xFFFF6701)],
+                ),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x66FF7300),
+                    blurRadius: 16,
+                    offset: Offset(0, 4),
+                  ),
+                ],
               ),
-              onPressed: _isLoading ? null : _handleSignup,
-              child: _isLoading
-                  ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
-                    )
-                  : Text(
-                      'Sign Up',
-                      style: GoogleFonts.inter(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+              child: Center(
+                child: _isLoading
+                    ? const SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(strokeWidth: 2.2, color: Colors.white),
+                      )
+                    : Text(
+                        'Sign Up',
+                        style: GoogleFonts.inter(
+                          fontSize: 15.5,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          letterSpacing: -0.2,
+                        ),
                       ),
-                    ),
+              ),
             ),
           ),
         ],
@@ -517,178 +667,203 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
       key: const ValueKey('otp_view'),
       mainAxisSize: MainAxisSize.min,
       children: [
-        // OTP Header Icon
+        // OTP Header Squircle
         Container(
-          width: 70,
-          height: 70,
+          width: 74,
+          height: 74,
           decoration: BoxDecoration(
-            color: Colors.green.withOpacity(0.15),
-            shape: BoxShape.circle,
-            border: Border.all(color: Colors.green.withOpacity(0.5), width: 2),
+            borderRadius: BorderRadius.circular(22),
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF66BB6A), Color(0xFF2E7D32)],
+            ),
+            border: Border.all(color: const Color(0x8CA5D6A7), width: 1.1),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x662E7D32),
+                blurRadius: 28,
+                offset: Offset(0, 6),
+              ),
+            ],
           ),
           child: const Center(
-            child: Icon(Icons.mark_email_read_outlined, color: Colors.green, size: 36),
+            child: Icon(Icons.mark_email_read_rounded, color: Colors.white, size: 38),
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 20),
         Text(
           'Verify Email',
           style: GoogleFonts.inter(
             fontSize: 28,
             fontWeight: FontWeight.bold,
+            letterSpacing: -0.5,
             color: Colors.white,
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 8),
         RichText(
           textAlign: TextAlign.center,
           text: TextSpan(
-            style: GoogleFonts.inter(fontSize: 14, color: AppColors.neutralTextMuted, height: 1.5),
+            style: GoogleFonts.inter(fontSize: 13.5, color: const Color(0xFF9E968F), height: 1.45),
             children: [
-              const TextSpan(text: 'We have emailed a 6-digit confirmation code to '),
+              const TextSpan(text: 'We sent a verification code to\n'),
               TextSpan(
                 text: _otpEmail,
                 style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
               ),
-              const TextSpan(text: '. Enter it below to activate your account.'),
             ],
           ),
         ),
-        const SizedBox(height: 32),
+        const SizedBox(height: 28),
 
         // OTP Input Card
-        ClipRRect(
-          borderRadius: BorderRadius.circular(24),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: AppColors.neutralSurface.withOpacity(0.75),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: AppColors.neutralBorder.withOpacity(0.5)),
+        Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(26),
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0x8C302117),
+                Color(0x991C140D),
+              ],
+            ),
+            border: Border.all(color: const Color(0x2BFFFFFF), width: 1.0),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.4),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
               ),
-              child: Column(
-                children: [
-                  // OTP Input Field
-                  TextFormField(
-                    controller: _otpInputController,
-                    focusNode: _otpFocusNode,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
+            ],
+          ),
+          child: Column(
+            children: [
+              // Monospace Digits Input
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0x59291D15),
+                  borderRadius: BorderRadius.circular(15),
+                  border: Border.all(color: const Color(0x4DFF9233), width: 1.2),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: TextFormField(
+                  controller: _otpInputController,
+                  focusNode: _otpFocusNode,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontFamily: 'monospace',
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 6.0,
+                  ),
+                  cursorColor: const Color(0xFFFF9233),
+                  keyboardType: TextInputType.number,
+                  maxLength: 8,
+                  decoration: const InputDecoration(
+                    counterText: '',
+                    hintText: '••••••••',
+                    hintStyle: TextStyle(
                       fontFamily: 'monospace',
-                      color: Colors.white,
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 8.0,
+                      color: Color(0xFF7E756E),
+                      letterSpacing: 6.0,
                     ),
-                    keyboardType: TextInputType.number,
-                    maxLength: 8,
-                    decoration: InputDecoration(
-                      counterText: '',
-                      hintText: '••••••••',
-                      hintStyle: TextStyle(
-                        fontFamily: 'monospace',
-                        color: AppColors.neutralTextMuted.withOpacity(0.4),
-                        letterSpacing: 8.0,
-                      ),
-                      filled: true,
-                      fillColor: AppColors.backgroundDark,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 16),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide: const BorderSide(color: AppColors.neutralBorder),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide: const BorderSide(color: AppColors.neutralBorder),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
-                      ),
-                    ),
-                    onFieldSubmitted: (_) => _verifyOtp(),
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.symmetric(vertical: 14),
                   ),
-                  const SizedBox(height: 32),
+                  onFieldSubmitted: (_) => _verifyOtp(),
+                ),
+              ),
 
-                  // Actions
-                  SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                        elevation: 0,
+              const SizedBox(height: 24),
+
+              // Verify Button
+              _AuthBounceButton(
+                onTap: _isLoading ? () {} : _verifyOtp,
+                child: Container(
+                  width: double.infinity,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFFF9534), Color(0xFFFF6701)],
+                    ),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x66FF7300),
+                        blurRadius: 16,
+                        offset: Offset(0, 4),
                       ),
-                      onPressed: _isLoading ? null : _verifyOtp,
-                      child: _isLoading
-                          ? const SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
-                            )
-                          : Text(
-                              'Verify Code',
-                              style: GoogleFonts.inter(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                    ),
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                  TextButton(
-                    onPressed: () {
-                      setState(() {
-                        _isOtpSent = false;
-                        _otpInputController.clear();
-                      });
-                    },
-                    child: Text(
-                      'Back to Sign Up',
-                      style: GoogleFonts.inter(
-                        color: AppColors.neutralTextMuted,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.primary.withOpacity(0.25), width: 1),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Icon(
-                          Icons.info_outline,
-                          color: AppColors.primary,
-                          size: 18,
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            "Can't find the email? Please check your Spam or Junk folder to ensure it wasn't filtered.",
+                  child: Center(
+                    child: _isLoading
+                        ? const SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(strokeWidth: 2.2, color: Colors.white),
+                          )
+                        : Text(
+                            'Verify Code',
                             style: GoogleFonts.inter(
-                              color: AppColors.neutralTextMuted,
-                              fontSize: 12,
-                              height: 1.4,
+                              fontSize: 15.5,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
                   ),
-                ],
+                ),
               ),
-            ),
+
+              const SizedBox(height: 16),
+
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    _isOtpSent = false;
+                    _otpInputController.clear();
+                  });
+                },
+                child: Text(
+                  'Back to Sign Up',
+                  style: GoogleFonts.inter(
+                    color: const Color(0xFFBEB8B2),
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                decoration: BoxDecoration(
+                  color: const Color(0x26FF9233),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0x40FF9233), width: 0.8),
+                ),
+                child: Row(
+                  children: [
+                    RedesignIcons.infoCircle(size: 16, color: const Color(0xFFFF9233)),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        "Can't find the email? Please check your Spam folder.",
+                        style: GoogleFonts.inter(
+                          color: const Color(0xFFD4C9C2),
+                          fontSize: 11.5,
+                          height: 1.35,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -699,9 +874,9 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
     required TextEditingController controller,
     required String label,
     required String hint,
-    required IconData icon,
+    required Widget prefixWidget,
     bool obscureText = false,
-    Widget? suffixIcon,
+    Widget? suffixWidget,
     TextInputType keyboardType = TextInputType.text,
     String? Function(String?)? validator,
   }) {
@@ -711,50 +886,78 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
         Text(
           label,
           style: GoogleFonts.inter(
-            color: AppColors.neutralTextMuted,
+            color: const Color(0xFFBEB8B2),
             fontSize: 12,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w600,
           ),
         ),
         const SizedBox(height: 6),
-        TextFormField(
-          controller: controller,
-          obscureText: obscureText,
-          keyboardType: keyboardType,
-          validator: validator,
-          style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: GoogleFonts.inter(color: Colors.white30, fontSize: 14),
-            prefixIcon: Icon(icon, color: AppColors.neutralTextMuted, size: 20),
-            suffixIcon: suffixIcon,
-            filled: true,
-            fillColor: AppColors.backgroundDark,
-            contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: AppColors.neutralBorder),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: AppColors.neutralBorder),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.redAccent),
-            ),
-            focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
-            ),
-            errorStyle: GoogleFonts.inter(color: Colors.redAccent, fontSize: 11),
+        Container(
+          decoration: BoxDecoration(
+            color: const Color(0x59291D15),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: const Color(0x26FFFFFF), width: 1.0),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          child: Row(
+            children: [
+              prefixWidget,
+              const SizedBox(width: 10),
+              Expanded(
+                child: TextFormField(
+                  controller: controller,
+                  obscureText: obscureText,
+                  keyboardType: keyboardType,
+                  validator: validator,
+                  style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
+                  cursorColor: const Color(0xFFFF9233),
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    isDense: true,
+                    hintText: hint,
+                    hintStyle: GoogleFonts.inter(color: const Color(0xFF7E756E), fontSize: 13.5),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
+                ),
+              ),
+              if (suffixWidget != null) suffixWidget,
+            ],
           ),
         ),
       ],
+    );
+  }
+}
+
+class _AuthBounceButton extends StatefulWidget {
+  final Widget child;
+  final VoidCallback onTap;
+
+  const _AuthBounceButton({required this.child, required this.onTap});
+
+  @override
+  State<_AuthBounceButton> createState() => _AuthBounceButtonState();
+}
+
+class _AuthBounceButtonState extends State<_AuthBounceButton> {
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _pressed = true),
+      onTapUp: (_) {
+        setState(() => _pressed = false);
+        widget.onTap();
+      },
+      onTapCancel: () => setState(() => _pressed = false),
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedScale(
+        scale: _pressed ? 0.96 : 1.0,
+        duration: const Duration(milliseconds: 100),
+        curve: Curves.easeInOut,
+        child: widget.child,
+      ),
     );
   }
 }

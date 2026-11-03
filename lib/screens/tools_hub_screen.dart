@@ -300,7 +300,7 @@ class _ToolsHubScreenState extends State<ToolsHubScreen> {
                                     ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(0.35),
+                                        color: Colors.black.withValues(alpha: 0.35),
                                         blurRadius: 10,
                                         offset: const Offset(0, 3),
                                       ),
@@ -576,7 +576,7 @@ class ToolGridCard extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.35),
+              color: Colors.black.withValues(alpha: 0.35),
               blurRadius: 14,
               offset: const Offset(0, 4),
             ),
@@ -608,7 +608,7 @@ class ToolGridCard extends StatelessWidget {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: gradientColors.first.withOpacity(0.45),
+                        color: gradientColors.first.withValues(alpha: 0.45),
                         blurRadius: 14,
                         offset: const Offset(0, 3),
                       ),
